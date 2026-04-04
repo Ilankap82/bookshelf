@@ -1,0 +1,188 @@
+import type { Book } from '../types';
+
+export const SEED_BOOKS: Book[] = [
+  // ── Row 2 ──────────────────────────────────────────────────────────────────
+  { id:'1', title:'Tomorrow, and Tomorrow, and Tomorrow', author:'Gabrielle Zevin', status:'Completed', startDate:'2023-02-01', finishDate:'2023-02-11', pageCount:416, genres:['Fiction','Romance'], tropes:['Jewish','Gaming','Coming of Age'], rating:5, format:'eBook', seriesType:'Standalone' },
+  // Bloodsworn Saga
+  { id:'2', title:'The Shadow of the Gods', author:'John Gwynne', status:'Want to Read', genres:['Fantasy'], tropes:['Epic','Norse Mythology'], seriesType:'Trilogy', seriesName:'Bloodsworn Saga', seriesPosition:1 },
+  { id:'3', title:'The Hunter of the Gods', author:'John Gwynne', status:'Want to Read', genres:['Fantasy'], tropes:['Epic','Norse Mythology'], seriesType:'Trilogy', seriesName:'Bloodsworn Saga', seriesPosition:2 },
+  // Poppy War
+  { id:'4', title:'The Poppy War', author:'R.F. Kuang', status:'Want to Read', genres:['Fantasy','Fiction'], tropes:['War','Magic','Dark Lord'], seriesType:'Trilogy', seriesName:'Poppy War', seriesPosition:1 },
+  { id:'5', title:'The Dragon Republic', author:'R.F. Kuang', status:'Want to Read', genres:['Fantasy','Fiction'], tropes:['War','Magic','Dark Lord'], seriesType:'Trilogy', seriesName:'Poppy War', seriesPosition:2 },
+  { id:'6', title:'The Burning God', author:'R.F. Kuang', status:'Want to Read', genres:['Fantasy','Fiction'], tropes:['War','Magic','Dark Lord'], seriesType:'Trilogy', seriesName:'Poppy War', seriesPosition:3 },
+  // Mistborn
+  { id:'7', title:'Mistborn: The Final Empire', author:'Brandon Sanderson', status:'Completed', startDate:'2023-02-25', finishDate:'2023-03-19', pageCount:676, genres:['Sci-Fi','Fantasy'], tropes:['Magic','Mentor and Apprentice','Dark Lord','Found Family','Epic'], rating:4, format:'eBook', seriesType:'Series', seriesName:'Mistborn', seriesPosition:1 },
+  { id:'8', title:'The Well of Ascension', author:'Brandon Sanderson', status:'Completed', startDate:'2023-03-20', finishDate:'2023-04-11', pageCount:815, genres:['Sci-Fi','Fantasy'], tropes:['Magic','Mentor and Apprentice','Dark Lord','Found Family','Epic'], rating:4, format:'eBook', seriesType:'Series', seriesName:'Mistborn', seriesPosition:2 },
+  { id:'9', title:'The Hero of Ages', author:'Brandon Sanderson', status:'Completed', startDate:'2023-05-12', finishDate:'2023-07-07', pageCount:572, genres:['Sci-Fi','Fantasy'], tropes:['Magic','Mentor and Apprentice','Dark Lord','Found Family','Epic'], rating:4.5, format:'eBook', seriesType:'Series', seriesName:'Mistborn', seriesPosition:3 },
+  // Standalone
+  { id:'10', title:'Book Lovers', author:'Emily Henry', status:'Completed', startDate:'2023-02-11', finishDate:'2023-02-25', pageCount:398, genres:['Romance','Fiction'], tropes:['Enemies to Lovers','Grumpy/Sunshine'], rating:4.5, format:'eBook', seriesType:'Standalone' },
+  { id:'11', title:'Babel', author:'R.F. Kuang', status:'Completed', startDate:'2022-12-21', finishDate:'2023-02-01', pageCount:560, genres:['Sci-Fi'], tropes:['Classic','Coming of Age'], rating:3, format:'eBook', seriesType:'Standalone' },
+  // Legends & Lattes duology
+  { id:'12', title:'Bookshops & Bonedust', author:'Travis Baldree', status:'Reading', startDate:'2026-02-23', genres:['Fantasy'], tropes:['Cozy','Adventure','Found Family'], format:'eBook', seriesType:'Duology', seriesName:'Legends & Lattes', seriesPosition:1 },
+  { id:'13', title:'Legends & Lattes', author:'Travis Baldree', status:'Completed', startDate:'2023-04-07', finishDate:'2023-04-16', pageCount:296, genres:['Fantasy'], tropes:['Cozy','Adventure','LGBTQ'], rating:5, format:'eBook', seriesType:'Duology', seriesName:'Legends & Lattes', seriesPosition:2 },
+  // Standalone
+  { id:'14', title:'Daisy Jones and the Six', author:'Taylor Jenkins Reid', status:'Completed', pageCount:368, genres:['Fiction','Romance'], tropes:['Music'], rating:3.5, format:'Audio Book', seriesType:'Standalone' },
+  { id:'15', title:'Malibu Rising', author:'Taylor Jenkins Reid', status:'Completed', pageCount:369, genres:['Fiction','Romance'], tropes:['Found Family','Emotional'], rating:3, format:'Audio Book', seriesType:'Standalone' },
+  { id:'16', title:'Fever Pitch', author:'Nick Hornby', status:'Completed', pageCount:247, genres:['Fiction','Biography'], tropes:['Sports'], rating:4, format:'Audio Book', seriesType:'Standalone' },
+  // Stormlight Archive
+  { id:'17', title:'The Way of Kings', author:'Brandon Sanderson', status:'Completed', pageCount:1007, genres:['Fantasy'], tropes:['High Fantasy','Magic','Epic','Adventure'], rating:4, format:'eBook', seriesType:'Saga', seriesName:'The Stormlight Archive', seriesPosition:1 },
+  { id:'18', title:'Words of Radiance', author:'Brandon Sanderson', status:'Completed', pageCount:1087, genres:['Fantasy'], tropes:['High Fantasy','Magic','Epic','Adventure'], rating:4.5, format:'eBook', seriesType:'Saga', seriesName:'The Stormlight Archive', seriesPosition:2 },
+  { id:'19', title:'Oathbringer', author:'Brandon Sanderson', status:'Completed', pageCount:1248, genres:['Fantasy'], tropes:['High Fantasy','Magic','Epic','Adventure'], rating:4, format:'eBook', seriesType:'Saga', seriesName:'The Stormlight Archive', seriesPosition:3 },
+  { id:'20', title:'Rhythm of War', author:'Brandon Sanderson', status:'Want to Read', genres:['Fantasy'], tropes:['High Fantasy','Magic','Epic'], seriesType:'Saga', seriesName:'The Stormlight Archive', seriesPosition:4 },
+  { id:'21', title:'Wind and Truth', author:'Brandon Sanderson', status:'Want to Read', genres:['Fantasy'], tropes:['High Fantasy','Magic','Epic'], seriesType:'Saga', seriesName:'The Stormlight Archive', seriesPosition:5 },
+  // Standalone
+  { id:'22', title:'The Jordan Rules', author:'Sam Smith', status:'Completed', pageCount:384, genres:['Non-Fiction','Biography'], tropes:['Sports'], rating:4.5, format:'eBook', seriesType:'Standalone' },
+  { id:'23', title:'1984', author:'George Orwell', status:'Want to Read', genres:['Fiction','Sci-Fi'], tropes:['Classic','Dystopia'], seriesType:'Standalone' },
+  { id:'24', title:"Butcher's Crossing", author:'John Williams', status:'Completed', pageCount:274, genres:['Western'], tropes:['Classic','Man vs. Nature','Frontier'], rating:5, format:'Print', seriesType:'Standalone' },
+  { id:'25', title:'Catch-22', author:'Joseph Heller', status:'Completed', pageCount:453, genres:['War','Fiction'], tropes:['Classic','Satire','Black Comedy'], rating:5, format:'Print', seriesType:'Standalone' },
+  { id:'26', title:'The Never Ending Story', author:'Michael Ende', status:'Completed', pageCount:396, genres:['Fantasy','Young Adult'], tropes:['Classic','Adventure'], rating:3.5, format:'Print', seriesType:'Standalone' },
+  { id:'27', title:'Fahrenheit 451', author:'Ray Bradbury', status:'Want to Read', genres:['Sci-Fi','Fiction'], tropes:['Classic','Dystopia'], seriesType:'Standalone' },
+  { id:'28', title:'Hyperion', author:'Dan Simmons', status:'Want to Read', genres:['Sci-Fi'], tropes:['Epic','Classic'], seriesType:'Series', seriesName:'Hyperion Cantos', seriesPosition:1 },
+  // His Dark Materials
+  { id:'29', title:'The Golden Compass', author:'Philip Pullman', status:'Completed', pageCount:399, genres:['Fantasy','Sci-Fi'], tropes:["Hero's Journey",'The Chosen One'], rating:3.5, format:'Print', seriesType:'Trilogy', seriesName:'His Dark Materials', seriesPosition:1 },
+  { id:'30', title:'The Subtle Knife', author:'Philip Pullman', status:'Completed', pageCount:370, genres:['Fantasy','Sci-Fi'], tropes:["Hero's Journey",'The Chosen One'], rating:3, format:'Print', seriesType:'Trilogy', seriesName:'His Dark Materials', seriesPosition:2 },
+  { id:'31', title:'The Amber Spyglass', author:'Philip Pullman', status:'Completed', pageCount:465, genres:['Fantasy','Sci-Fi'], tropes:["Hero's Journey",'The Chosen One'], rating:3, format:'Print', seriesType:'Trilogy', seriesName:'His Dark Materials', seriesPosition:3 },
+  // Standalone
+  { id:'32', title:'Stoner', author:'John Williams', status:'Completed', genres:['Fiction'], tropes:[], rating:3.5, format:'Print', seriesType:'Standalone' },
+  // Millennium / Stieg Larsson
+  { id:'33', title:'The Girl With the Dragon Tattoo', author:'Stieg Larsson', status:'Completed', pageCount:480, genres:['Mystery','Fiction'], tropes:['Odd Couple','Cold Case','Anti-Hero'], rating:3.5, format:'Print', seriesType:'Series', seriesName:'Millennium', seriesPosition:1 },
+  { id:'34', title:'The Girl Who Played With Fire', author:'Stieg Larsson', status:'Completed', pageCount:503, genres:['Mystery','Fiction'], tropes:['Odd Couple','Cold Case','Anti-Hero'], rating:3.5, format:'Print', seriesType:'Series', seriesName:'Millennium', seriesPosition:2 },
+  { id:'35', title:"The Girl Who Kicked the Hornet's Nest", author:'Stieg Larsson', status:'Completed', pageCount:566, genres:['Mystery','Fiction'], tropes:['Odd Couple','Cold Case','Anti-Hero'], rating:3.5, format:'Print', seriesType:'Series', seriesName:'Millennium', seriesPosition:3 },
+  { id:'36', title:"The Girl in the Spider's Web", author:'David Lagercrantz', status:'Completed', pageCount:400, genres:['Mystery','Fiction'], tropes:['Odd Couple','Cold Case','Anti-Hero'], rating:3, format:'Print', seriesType:'Series', seriesName:'Millennium', seriesPosition:4 },
+  // Want to Read
+  { id:'37', title:'The Atlas Six', author:'Olivia Blake', status:'Want to Read', genres:['Fantasy'], tropes:['Magic','Academy'], seriesType:'Series', seriesName:'The Atlas', seriesPosition:1 },
+  { id:'38', title:'Sea of Tranquility', author:'Emily St. John Mandel', status:'Want to Read', genres:['Sci-Fi','Fiction'], tropes:[], seriesType:'Standalone' },
+  // Green Bone Saga
+  { id:'39', title:'Jade City', author:'Fonda Lee', status:'Completed', startDate:'2023-07-08', finishDate:'2023-08-07', pageCount:560, genres:['Fiction','Sci-Fi'], tropes:['Magic','High Fantasy'], rating:2.5, format:'eBook', seriesType:'Trilogy', seriesName:'The Green Bone Saga', seriesPosition:1 },
+  { id:'40', title:'Jade War', author:'Fonda Lee', status:'DNF', genres:['Fiction','Sci-Fi'], tropes:[], format:'eBook', seriesType:'Trilogy', seriesName:'The Green Bone Saga', seriesPosition:2 },
+  // Red Rising
+  { id:'41', title:'Red Rising', author:'Pierce Brown', status:'Completed', startDate:'2024-01-06', finishDate:'2024-01-15', pageCount:382, genres:['Sci-Fi','Fantasy','Young Adult'], tropes:['Dystopia','The Chosen One'], rating:2.5, format:'eBook', seriesType:'Series', seriesName:'Red Rising', seriesPosition:1 },
+  // Want to Read
+  { id:'42', title:"The World's Worst Assistant", author:'Sona Movsesian', status:'Want to Read', genres:['Non-Fiction'], tropes:[], seriesType:'Standalone' },
+  { id:'43', title:'Legendborn', author:'Tracy Deonn', status:'Want to Read', genres:['Fantasy','Young Adult'], tropes:['Magic'], seriesType:'Series', seriesName:'The Legendborn Cycle', seriesPosition:1 },
+  { id:'44', title:'Bloodmarked', author:'Tracy Deonn', status:'Want to Read', genres:['Fantasy','Young Adult'], tropes:['Magic'], seriesType:'Series', seriesName:'The Legendborn Cycle', seriesPosition:2 },
+  // Faithful and the Fallen
+  { id:'45', title:'Malice', author:'John Gwynne', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:'The Faithful and the Fallen', seriesPosition:1 },
+  { id:'46', title:'Valor', author:'John Gwynne', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:'The Faithful and the Fallen', seriesPosition:2 },
+  { id:'47', title:'Ruin', author:'John Gwynne', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:'The Faithful and the Fallen', seriesPosition:3 },
+  { id:'48', title:'Wrath', author:'John Gwynne', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:'The Faithful and the Fallen', seriesPosition:4 },
+  // Roots of Chaos
+  { id:'49', title:'The Priory of the Orange Tree', author:'Samantha Shannon', status:'Want to Read', genres:['Fantasy'], tropes:['Epic','Magic'], seriesType:'Standalone' },
+  { id:'50', title:'A Day of Fallen Night', author:'Samantha Shannon', status:'Want to Read', genres:['Fantasy'], tropes:['Epic','Magic'], seriesType:'Standalone' },
+  // Want to Read
+  { id:'51', title:'Beautiful World, Where Are You', author:'Sally Rooney', status:'Want to Read', genres:['Fiction'], tropes:[], seriesType:'Standalone' },
+  // Completed
+  { id:'52', title:'Lessons in Chemistry', author:'Bonnie Garmus', status:'Completed', startDate:'2023-04-17', finishDate:'2023-05-21', pageCount:400, genres:['Fiction'], tropes:[], rating:3.5, format:'Audio Book', seriesType:'Standalone' },
+  // Broken Earth
+  { id:'53', title:'The Fifth Season', author:'N.K. Jemisin', status:'Want to Read', genres:['Fantasy','Sci-Fi'], tropes:[], seriesType:'Trilogy', seriesName:'Broken Earth', seriesPosition:1 },
+  { id:'54', title:'The Obelisk Gate', author:'N.K. Jemisin', status:'Want to Read', genres:['Fantasy','Sci-Fi'], tropes:[], seriesType:'Trilogy', seriesName:'Broken Earth', seriesPosition:2 },
+  { id:'55', title:'The Stone Sky', author:'N.K. Jemisin', status:'Want to Read', genres:['Fantasy','Sci-Fi'], tropes:[], seriesType:'Trilogy', seriesName:'Broken Earth', seriesPosition:3 },
+  // Want to Read
+  { id:'56', title:'Gideon the Ninth', author:'Tamsyn Muir', status:'Want to Read', genres:['Fantasy','Sci-Fi'], tropes:[], seriesType:'Series', seriesName:'Locked Tomb', seriesPosition:1 },
+  { id:'57', title:'The Catcher in the Rye', author:'J.D. Salinger', status:'Want to Read', genres:['Fiction'], tropes:['Classic'], seriesType:'Standalone' },
+  // Completed
+  { id:'58', title:'Good Omens', author:'Terry Pratchett & Neil Gaiman', status:'Completed', pageCount:491, genres:['Fantasy','Sci-Fi'], tropes:['Comedy','Odd Couple'], rating:4.5, format:'Print', seriesType:'Standalone' },
+  // Six of Crows duology
+  { id:'59', title:'Six of Crows', author:'Leigh Bardugo', status:'Completed', startDate:'2023-08-24', finishDate:'2023-09-17', pageCount:465, genres:['Fantasy','Young Adult'], tropes:['Magic','High Fantasy','Found Family','Heist'], rating:3.5, format:'eBook', seriesType:'Duology', seriesName:'Six of Crows', seriesPosition:1 },
+  { id:'60', title:'Crooked Kingdom', author:'Leigh Bardugo', status:'Completed', startDate:'2023-12-29', finishDate:'2024-01-06', pageCount:561, genres:['Fantasy','Young Adult'], tropes:['Magic','High Fantasy','Found Family','Heist'], rating:3.5, format:'eBook', seriesType:'Duology', seriesName:'Six of Crows', seriesPosition:2 },
+  // Want to Read
+  { id:'61', title:'Blood Song', author:'Anthony Ryan', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:"Raven's Shadow", seriesPosition:1 },
+  // Kingkiller Chronicle
+  { id:'62', title:'The Name of the Wind', author:'Patrick Rothfuss', status:'Completed', pageCount:662, genres:['Fantasy'], tropes:['High Fantasy','Magic','Adventure'], rating:4.5, format:'Print', seriesType:'Trilogy', seriesName:'The Kingkiller Chronicle', seriesPosition:1 },
+  { id:'63', title:"The Wise Man's Fear", author:'Patrick Rothfuss', status:'Completed', pageCount:994, genres:['Fantasy'], tropes:['High Fantasy','Magic','Adventure'], rating:4.5, format:'Print', seriesType:'Trilogy', seriesName:'The Kingkiller Chronicle', seriesPosition:2 },
+  // Want to Read
+  { id:'64', title:'House of Earth and Blood', author:'Sarah J. Maas', status:'Want to Read', genres:['Fantasy','Romance'], tropes:[], seriesType:'Series', seriesName:'Crescent City', seriesPosition:1 },
+  // Hunger Games
+  { id:'65', title:'The Hunger Games', author:'Suzanne Collins', status:'Completed', pageCount:374, genres:['Fantasy','Young Adult'], tropes:['Dystopia','Adventure',"Hero's Journey",'The Chosen One'], rating:5, format:'Print', seriesType:'Trilogy', seriesName:'The Hunger Games', seriesPosition:1 },
+  { id:'66', title:'Catching Fire', author:'Suzanne Collins', status:'Completed', pageCount:391, genres:['Fantasy','Young Adult'], tropes:['Dystopia','Adventure',"Hero's Journey",'The Chosen One'], rating:5, format:'Print', seriesType:'Trilogy', seriesName:'The Hunger Games', seriesPosition:2 },
+  { id:'67', title:'Mockingjay', author:'Suzanne Collins', status:'Completed', pageCount:398, genres:['Fantasy','Young Adult'], tropes:['Dystopia','Adventure',"Hero's Journey",'The Chosen One'], rating:5, format:'Print', seriesType:'Trilogy', seriesName:'The Hunger Games', seriesPosition:3 },
+  // Completed standalone
+  { id:'68', title:"The Hitchhiker's Guide to the Galaxy", author:'Douglas Adams', status:'Completed', pageCount:216, genres:['Sci-Fi'], tropes:['Comedy','Adventure','Classic'], rating:5, format:'Print', seriesType:'Standalone' },
+  // Want to Read
+  { id:'69', title:'Gallant', author:'V.E. Schwab', status:'Want to Read', genres:['Fantasy'], tropes:[], seriesType:'Standalone' },
+  // Ready Player
+  { id:'70', title:'Ready Player One', author:'Ernest Cline', status:'Completed', pageCount:374, genres:['Sci-Fi','Young Adult'], tropes:['Dystopia','Adventure','Gaming'], rating:5, format:'eBook', seriesType:'Series', seriesName:'Ready Player One', seriesPosition:1 },
+  { id:'71', title:'Armada', author:'Ernest Cline', status:'Completed', pageCount:355, genres:['Sci-Fi','Young Adult'], tropes:['Adventure'], rating:2, format:'eBook', seriesType:'Standalone' },
+  // Want to Read
+  { id:'72', title:'Dark Matter', author:'Blake Crouch', status:'Want to Read', genres:['Sci-Fi','Thriller'], tropes:[], seriesType:'Standalone' },
+  // Completed standalone
+  { id:'73', title:'11/22/63', author:'Stephen King', status:'Completed', pageCount:849, genres:['Fiction'], tropes:[], rating:4, format:'Print', seriesType:'Standalone' },
+  { id:'74', title:'Once Upon a Time in Hollywood', author:'Quentin Tarantino', status:'Completed', pageCount:400, genres:['Fiction'], tropes:[], rating:3.5, format:'Print', seriesType:'Standalone' },
+  { id:'75', title:'A Promised Land', author:'Barack Obama', status:'Completed', pageCount:768, genres:['Non-Fiction','Biography'], tropes:[], rating:4, format:'eBook', seriesType:'Standalone' },
+  { id:'76', title:'All the Light We Cannot See', author:'Anthony Doerr', status:'Completed', startDate:'2023-04-13', finishDate:'2023-05-05', pageCount:552, genres:['Fiction','Historical'], tropes:[], rating:1, format:'eBook', seriesType:'Standalone' },
+  { id:'77', title:'The Fault in Our Stars', author:'John Green', status:'Completed', pageCount:313, genres:['Fiction','Young Adult'], tropes:['Romance'], rating:4, format:'Print', seriesType:'Standalone' },
+  // Want to Read
+  { id:'78', title:'The Gunslinger', author:'Stephen King', status:'Want to Read', genres:['Fantasy','Western'], tropes:[], seriesType:'Series', seriesName:'The Dark Tower', seriesPosition:1 },
+  // Cerulean Chronicles
+  { id:'79', title:'The House in the Cerulean Sea', author:'T.J. Klune', status:'Completed', startDate:'2024-05-31', finishDate:'2024-06-24', pageCount:393, genres:['Fantasy'], tropes:['Cozy'], rating:4.5, format:'Audio Book', seriesType:'Duology', seriesName:'Cerulean Chronicles', seriesPosition:1 },
+  { id:'80', title:'Somewhere Beyond the Sea', author:'T.J. Klune', status:'Want to Read', genres:['Fantasy'], tropes:['Cozy'], seriesType:'Duology', seriesName:'Cerulean Chronicles', seriesPosition:2 },
+  // Want to Read
+  { id:'81', title:'The Invisible Life of Addie LaRue', author:'V.E. Schwab', status:'Want to Read', genres:['Fantasy','Fiction'], tropes:[], seriesType:'Standalone' },
+  // First Law Trilogy
+  { id:'82', title:'The Blade Itself', author:'Joe Abercrombie', status:'Completed', startDate:'2025-08-01', finishDate:'2025-09-27', pageCount:515, genres:['Fantasy'], tropes:['High Fantasy','Magic','Adventure'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'The First Law', seriesPosition:1 },
+  { id:'83', title:'Before They Are Hanged', author:'Joe Abercrombie', status:'Completed', startDate:'2025-09-28', finishDate:'2025-11-12', pageCount:543, genres:['Fantasy'], tropes:['High Fantasy','Magic','Adventure'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'The First Law', seriesPosition:2 },
+  { id:'84', title:'Last Argument of Kings', author:'Joe Abercrombie', status:'Completed', startDate:'2025-11-13', finishDate:'2026-01-27', pageCount:531, genres:['Fantasy'], tropes:['High Fantasy','Magic','Adventure'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'The First Law', seriesPosition:3 },
+  // Standalone
+  { id:'85', title:'Tress of the Emerald Sea', author:'Brandon Sanderson', status:'Completed', startDate:'2024-02-19', finishDate:'2024-02-27', pageCount:443, genres:['Fantasy','Young Adult'], tropes:['Pirates'], rating:3, format:'eBook', seriesType:'Standalone' },
+  // Want to Read
+  { id:'86', title:'Skyward', author:'Brandon Sanderson', status:'Want to Read', genres:['Sci-Fi','Young Adult'], tropes:[], seriesType:'Series', seriesName:'Skyward', seriesPosition:1 },
+  { id:'87', title:'Foundryside', author:'Robert Jackson Bennett', status:'Want to Read', genres:['Fantasy'], tropes:['Magic'], seriesType:'Series', seriesName:'The Founders Trilogy', seriesPosition:1 },
+  // Gentleman Bastards
+  { id:'88', title:'The Lies of Locke Lamora', author:'Scott Lynch', status:'Completed', startDate:'2023-06-20', finishDate:'2023-07-21', pageCount:752, genres:['Fantasy'], tropes:['Heist','Found Family'], rating:4.5, format:'Audio Book', seriesType:'Series', seriesName:'The Gentleman Bastards', seriesPosition:1 },
+  { id:'89', title:'Red Seas Under Red Skies', author:'Scott Lynch', status:'Want to Read', genres:['Fantasy'], tropes:['Heist','Adventure'], seriesType:'Series', seriesName:'The Gentleman Bastards', seriesPosition:2 },
+  // Standalone
+  { id:'90', title:'People We Meet on Vacation', author:'Emily Henry', status:'Completed', startDate:'2023-05-23', finishDate:'2023-06-19', pageCount:364, genres:['Romance'], tropes:['Friends to Lovers'], rating:3, format:'Audio Book', seriesType:'Standalone' },
+  // Want to Read
+  { id:'91', title:'Beach Read', author:'Emily Henry', status:'Want to Read', genres:['Romance','Fiction'], tropes:['Enemies to Lovers'], seriesType:'Standalone' },
+  { id:'92', title:'The City of Brass', author:'S.A. Chakraborty', status:'Want to Read', genres:['Fantasy'], tropes:['Magic'], seriesType:'Trilogy', seriesName:'The Daevabad Trilogy', seriesPosition:1 },
+  { id:'93', title:'Dark Water Daughter', author:'H.M. Long', status:'Want to Read', genres:['Fantasy'], tropes:['Pirates'], seriesType:'Series', seriesName:'The Winter Sea', seriesPosition:1 },
+  { id:'94', title:'The Love Hypothesis', author:'Ali Hazelwood', status:'Want to Read', genres:['Romance','Fiction'], tropes:[], seriesType:'Standalone' },
+  { id:'95', title:'Pride and Prejudice', author:'Jane Austen', status:'Want to Read', genres:['Romance','Fiction'], tropes:['Classic'], seriesType:'Standalone' },
+  { id:'96', title:'Turtles All the Way Down', author:'John Green', status:'Want to Read', genres:['Fiction','Young Adult'], tropes:[], seriesType:'Standalone' },
+  // Shades of Magic Trilogy
+  { id:'97', title:'A Darker Shade of Magic', author:'V.E. Schwab', status:'Completed', startDate:'2024-01-15', finishDate:'2024-01-25', pageCount:400, genres:['Fantasy'], tropes:['Magic','Adventure'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'Shades of Magic', seriesPosition:1 },
+  { id:'98', title:'A Gathering of Shadows', author:'V.E. Schwab', status:'Completed', startDate:'2024-01-26', finishDate:'2024-02-05', pageCount:512, genres:['Fantasy'], tropes:['Magic','Adventure'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'Shades of Magic', seriesPosition:2 },
+  { id:'99', title:'A Conjuring of Light', author:'V.E. Schwab', status:'Completed', startDate:'2024-02-05', finishDate:'2024-02-18', pageCount:624, genres:['Fantasy'], tropes:['Magic','Adventure'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'Shades of Magic', seriesPosition:3 },
+  // Want to Read
+  { id:'100', title:'Love, Theoretically', author:'Ali Hazelwood', status:'Want to Read', genres:['Romance'], tropes:[], seriesType:'Standalone' },
+  // Project Hail Mary - Reading (last entry in sheet, row 138)
+  { id:'101', title:'Project Hail Mary', author:'Andy Weir', status:'Reading', startDate:'2026-09-01', pageCount:476, genres:['Sci-Fi'], tropes:['Adventure'], rating:4.5, format:'eBook', seriesType:'Standalone' },
+  // My Brilliant Friend
+  { id:'102', title:'My Brilliant Friend', author:'Elena Ferrante', status:'Completed', pageCount:331, genres:['Fiction'], tropes:[], rating:4, format:'Print', seriesType:'Series', seriesName:'My Brilliant Friend', seriesPosition:1 },
+  { id:'103', title:'The Story of a New Name', author:'Elena Ferrante', status:'Completed', pageCount:471, genres:['Fiction'], tropes:[], rating:4, format:'Print', seriesType:'Series', seriesName:'My Brilliant Friend', seriesPosition:2 },
+  { id:'104', title:'Those Who Leave and Those Who Stay', author:'Elena Ferrante', status:'Completed', pageCount:418, genres:['Fiction'], tropes:[], rating:4, format:'Print', seriesType:'Series', seriesName:'My Brilliant Friend', seriesPosition:3 },
+  { id:'105', title:'The Story of the Lost Child', author:'Elena Ferrante', status:'Completed', pageCount:473, genres:['Fiction'], tropes:[], rating:4, format:'Print', seriesType:'Series', seriesName:'My Brilliant Friend', seriesPosition:4 },
+  // Want to Read
+  { id:'106', title:'The Cruel Prince', author:'Holly Black', status:'Want to Read', genres:['Fantasy','Young Adult'], tropes:[], seriesType:'Trilogy', seriesName:'The Folk of the Air', seriesPosition:1 },
+  { id:'107', title:'One Hundred Years of Solitude', author:'Gabriel García Márquez', status:'Want to Read', genres:['Fiction'], tropes:['Classic'], seriesType:'Standalone' },
+  // Farseer Trilogy
+  { id:'108', title:"Assassin's Apprentice", author:'Robin Hobb', status:'Completed', startDate:'2024-03-21', finishDate:'2024-04-07', pageCount:356, genres:['Fantasy'], tropes:['Magic','Coming of Age'], rating:3.5, format:'eBook', seriesType:'Trilogy', seriesName:'The Farseer Trilogy', seriesPosition:1 },
+  { id:'109', title:'Royal Assassin', author:'Robin Hobb', status:'Completed', startDate:'2024-04-08', finishDate:'2024-05-02', pageCount:675, genres:['Fantasy'], tropes:['Magic'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'The Farseer Trilogy', seriesPosition:2 },
+  { id:'110', title:"Assassin's Quest", author:'Robin Hobb', status:'Completed', startDate:'2024-05-03', finishDate:'2024-05-30', pageCount:757, genres:['Fantasy'], tropes:['Magic','Epic'], rating:4, format:'eBook', seriesType:'Trilogy', seriesName:'The Farseer Trilogy', seriesPosition:3 },
+  // Want to Read
+  { id:'111', title:'The Way of Shadows', author:'Brent Weeks', status:'Want to Read', genres:['Fantasy'], tropes:['Dark'], seriesType:'Trilogy', seriesName:'Night Angel', seriesPosition:1 },
+  { id:'112', title:'The Brothers Karamazov', author:'Fyodor Dostoevsky', status:'Want to Read', genres:['Fiction'], tropes:['Classic'], seriesType:'Standalone' },
+  { id:'113', title:'The Rage of Dragons', author:'Evan Winter', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:'The Burning', seriesPosition:1 },
+  { id:'114', title:'The Night Circus', author:'Erin Morgenstern', status:'Want to Read', genres:['Fantasy','Fiction'], tropes:['Magical Realism'], seriesType:'Standalone' },
+  { id:'115', title:'A Court of Thorns and Roses', author:'Sarah J. Maas', status:'Want to Read', genres:['Fantasy','Romance'], tropes:['Fae'], seriesType:'Series', seriesName:'A Court of Thorns and Roses', seriesPosition:1 },
+  { id:'116', title:'All Systems Red', author:'Martha Wells', status:'Want to Read', genres:['Sci-Fi'], tropes:['Found Family'], seriesType:'Series', seriesName:'Murderbot Diaries', seriesPosition:1 },
+  { id:'117', title:'The Will of the Many', author:'James Islington', status:'Want to Read', genres:['Fantasy'], tropes:['Magic','The Chosen One'], seriesType:'Standalone' },
+  { id:'118', title:'The Stand', author:'Stephen King', status:'Reading', startDate:'2025-12-31', genres:['Fiction','Sci-Fi'], tropes:['Dystopia','Epic'], format:'eBook', seriesType:'Standalone' },
+  { id:'119', title:'The Grace of Kings', author:'Ken Liu', status:'Want to Read', genres:['Fantasy'], tropes:['Epic'], seriesType:'Series', seriesName:'The Dandelion Dynasty', seriesPosition:1 },
+  { id:'120', title:'Warbreaker', author:'Brandon Sanderson', status:'Want to Read', genres:['Fantasy'], tropes:['Magic'], seriesType:'Standalone' },
+  // Completed
+  { id:'121', title:'The Very Secret Society of Irregular Witches', author:'Sangu Mandanna', status:'Completed', startDate:'2024-06-26', finishDate:'2024-07-11', pageCount:336, genres:['Fantasy','Romance'], tropes:['Cozy','Found Family'], rating:3.5, format:'eBook', seriesType:'Standalone' },
+  { id:'122', title:'Dune', author:'Frank Herbert', status:'Completed', pageCount:658, genres:['Sci-Fi','Fantasy'], tropes:['Space Opera','The Chosen One',"Hero's Journey"], rating:4, format:'eBook', seriesType:'Series', seriesName:'Dune', seriesPosition:1 },
+  // Harry Potter
+  { id:'123', title:"Harry Potter and the Sorcerer's Stone", author:'J.K. Rowling', status:'Completed', pageCount:309, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:4.5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:1 },
+  { id:'124', title:'Harry Potter and the Chamber of Secrets', author:'J.K. Rowling', status:'Completed', pageCount:352, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:4.5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:2 },
+  { id:'125', title:'Harry Potter and the Prisoner of Azkaban', author:'J.K. Rowling', status:'Completed', pageCount:547, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:3 },
+  { id:'126', title:'Harry Potter and the Goblet of Fire', author:'J.K. Rowling', status:'Completed', pageCount:752, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:4 },
+  { id:'127', title:'Harry Potter and the Order of the Phoenix', author:'J.K. Rowling', status:'Completed', pageCount:896, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:5 },
+  { id:'128', title:'Harry Potter and the Half-Blood Prince', author:'J.K. Rowling', status:'Completed', pageCount:672, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:6 },
+  { id:'129', title:'Harry Potter and the Deathly Hallows', author:'J.K. Rowling', status:'Completed', pageCount:784, genres:['Fantasy','Young Adult'], tropes:['Magic','The Chosen One','Coming of Age'], rating:5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:7 },
+  { id:'130', title:'Harry Potter and the Cursed Child', author:'J.K. Rowling', status:'Completed', pageCount:343, genres:['Fantasy','Young Adult'], tropes:['Magic'], rating:3.5, format:'eBook', seriesType:'Series', seriesName:'Harry Potter', seriesPosition:8 },
+  // Ender's Game
+  { id:'131', title:"Ender's Game", author:'Orson Scott Card', status:'Completed', pageCount:324, genres:['Sci-Fi','Young Adult'], tropes:['The Chosen One','Strategy'], rating:4, format:'eBook', seriesType:'Series', seriesName:"Ender's Game", seriesPosition:1 },
+  { id:'132', title:'Speaker for the Dead', author:'Orson Scott Card', status:'Completed', pageCount:382, genres:['Sci-Fi'], tropes:[], rating:4, format:'eBook', seriesType:'Series', seriesName:"Ender's Game", seriesPosition:2 },
+];
