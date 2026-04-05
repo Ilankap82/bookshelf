@@ -42,7 +42,7 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
       <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative' }}>
         {cover ? (
           <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            onError={() => setCover(null)} />
+            />
         ) : (
           <div style={{
             width: '100%', height: '100%',

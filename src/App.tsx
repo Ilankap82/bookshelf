@@ -264,7 +264,7 @@ function NowReadingHero({ book, onClick }: { book: Book; onClick: () => void }) 
   return (
     <div style={S.nowHero} onClick={onClick}>
       <div style={S.nowHeroCover}>
-        {cover ? <img src={cover} style={{ width:'100%',height:'100%',objectFit:'cover',display:'block' }} onError={() => setCover(null)} /> : <div style={S.coverPh}>📖</div>}
+        {cover ? <img src={cover} style={{ width:'100%',height:'100%',objectFit:'cover',display:'block' }} /> : <div style={S.coverPh}>📖</div>}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize:9,letterSpacing:2,textTransform:'uppercase',color:'#E8A838',fontWeight:700,marginBottom:5 }}>Now Reading</div>

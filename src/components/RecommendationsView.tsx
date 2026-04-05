@@ -54,7 +54,7 @@ export default function RecommendationsView({ recommendations, books, onAddToLis
 }
 
 function RecCard({ rec, onAdd }: { rec: Recommendation; onAdd: () => void }) {
-  const [cover, setCover] = useState<string | null>(rec.isbn ? `https://covers.openlibrary.org/b/isbn/${rec.isbn}-M.jpg` : null);
+  const [cover] = useState<string | null>(rec.isbn ? `https://covers.openlibrary.org/b/isbn/${rec.isbn}-M.jpg` : null);
   const [hover, setHover] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -67,7 +67,7 @@ function RecCard({ rec, onAdd }: { rec: Recommendation; onAdd: () => void }) {
       {/* Thumb */}
       <div style={{ width:62, flexShrink:0, aspectRatio:'2/3', borderRadius:6, overflow:'hidden', background:'linear-gradient(160deg,#302B3E,#1C1921)', border:'1px solid rgba(255,255,255,0.10)', boxShadow:'2px 4px 12px rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Playfair Display',serif", fontSize:10, color:'#F5CC7A', textAlign:'center', padding:6, lineHeight:1.4 }}>
         {cover
-          ? <img src={cover} style={{ width:'100%',height:'100%',objectFit:'cover',display:'block' }} onError={() => setCover(null)} />
+          ? <img src={cover} style={{ width:'100%',height:'100%',objectFit:'cover',display:'block' }} />
           : rec.title
         }
       </div>

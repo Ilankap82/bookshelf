@@ -59,7 +59,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
         <div style={{ padding:'28px 24px 22px', display:'flex', gap:18, borderBottom:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(180deg,rgba(232,168,56,0.08) 0%,rgba(232,168,56,0.02) 50%,transparent 100%)', position:'relative' }}>
           <div style={{ width:86, flexShrink:0, aspectRatio:'2/3', borderRadius:6, overflow:'hidden', boxShadow:'4px 6px 24px rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.10)' }}>
             {cover
-              ? <img src={cover} alt={book.title} style={{ width:'100%',height:'100%',objectFit:'cover' }} onError={() => setCover(null)} />
+              ? <img src={cover} alt={book.title} style={{ width:'100%',height:'100%',objectFit:'cover' }} />
               : <div style={{ width:'100%',height:'100%',background:'linear-gradient(160deg,#3E384F,#1C1921)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,opacity:0.5 }}>📖</div>
             }
           </div>
