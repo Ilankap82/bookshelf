@@ -23,6 +23,7 @@ export interface Book {
   seriesPosition?: number;
   notes?: string;
   coverUrl?: string; // cached Open Library cover
+  pagesRead?: number; // for in-progress reading tracking
 }
 
 export interface AppData {

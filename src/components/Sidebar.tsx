@@ -66,8 +66,16 @@ export default function Sidebar({ view, onViewChange, counts, currentlyReading, 
               <div style={{ fontSize:12, fontWeight:600, color:'#F0EAE0', lineHeight:1.3, marginBottom:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{currentlyReading.title}</div>
               <div style={{ fontSize:11, color:'rgba(240,234,224,0.5)', marginBottom:7 }}>{currentlyReading.author}</div>
               <div style={{ height:3, background:'rgba(255,255,255,0.10)', borderRadius:2, overflow:'hidden' }}>
-                <div style={{ height:'100%', width:'38%', background:'linear-gradient(90deg,#B07820,#E8A838)', borderRadius:2 }} />
+                {(() => {
+                  const pct = (currentlyReading.pagesRead && currentlyReading.pageCount) ? Math.min(100, Math.round((currentlyReading.pagesRead / currentlyReading.pageCount) * 100)) : null;
+                  return <div style={{ height:'100%', width: pct !== null ? `${pct}%` : '0%', background:'linear-gradient(90deg,#B07820,#E8A838)', borderRadius:2 }} />;
+                })()}
               </div>
+              {(currentlyReading.pagesRead && currentlyReading.pageCount) && (
+                <div style={{ fontSize:9, color:'rgba(240,234,224,0.3)', marginTop:4 }}>
+                  {Math.min(100, Math.round((currentlyReading.pagesRead / currentlyReading.pageCount) * 100))}% · pg {currentlyReading.pagesRead}/{currentlyReading.pageCount}
+                </div>
+              )}
             </div>
           </div>
         </div>

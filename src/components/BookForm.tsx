@@ -41,6 +41,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
       rating: form.rating, format: form.format, seriesName: form.seriesName,
       seriesType: form.seriesType, seriesPosition: form.seriesPosition ? Number(form.seriesPosition) : undefined,
       notes: form.notes,
+      pagesRead: form.pagesRead ? Number(form.pagesRead) : undefined,
     };
     onSave(book);
   }
@@ -106,6 +107,24 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
               </select>
             </Field>
           </div>
+
+          {form.status === 'Reading' && (
+            <Field label="Pages Read">
+              <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                <input style={inputStyle} type="number" value={form.pagesRead || ''} onChange={e => set('pagesRead', e.target.value ? Number(e.target.value) : undefined)} placeholder="How far are you?" min={0} max={form.pageCount || undefined} />
+                {form.pagesRead && form.pageCount ? (
+                  <div>
+                    <div style={{ height:4, background:'rgba(255,255,255,0.08)', borderRadius:2, overflow:'hidden' }}>
+                      <div style={{ height:'100%', width:`${Math.min(100, Math.round((Number(form.pagesRead)/Number(form.pageCount))*100))}%`, background:'linear-gradient(90deg,#B07820,#E8A838)', borderRadius:2, transition:'width 0.3s' }} />
+                    </div>
+                    <div style={{ fontSize:10, color:'rgba(240,234,224,0.4)', marginTop:4 }}>
+                      {Math.min(100, Math.round((Number(form.pagesRead)/Number(form.pageCount))*100))}% · {Number(form.pageCount) - Number(form.pagesRead)} pages left
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </Field>
+          )}
 
           <Field label="Format">
             <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
