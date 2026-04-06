@@ -15,6 +15,26 @@ type View = 'home' | 'library' | 'discovery' | 'stats';
 type FilterStatus = Status | 'All';
 
 const STORAGE_KEY = 'bookshelf_data';
+const USER_KEY = 'bookshelf_user';
+
+export interface UserProfile {
+  name: string;
+  role: string;
+  initials: string;
+  color: string;
+}
+
+function loadUser(): UserProfile {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { name: 'Reader', role: 'Lead Curator', initials: 'R', color: '#006241' };
+}
+
+function saveUser(u: UserProfile) {
+  localStorage.setItem(USER_KEY, JSON.stringify(u));
+}
 
 function loadData(): Book[] {
   try {
@@ -42,7 +62,15 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [editingBook, setEditingBook] = useState<Book | null | 'new'>(null);
+  const [user, setUser] = useState<UserProfile>(loadUser);
+  const [editingUser, setEditingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function updateUser(u: UserProfile) {
+    setUser(u);
+    saveUser(u);
+    setEditingUser(false);
+  }
 
   useEffect(() => { saveData(books); }, [books]);
 
@@ -125,6 +153,8 @@ export default function App() {
         filterStatus={filterStatus}
         onFilterStatus={(s: FilterStatus) => { setFilterStatus(s); setView('library'); }}
         onAddBook={() => setEditingBook('new')}
+        user={user}
+        onEditUser={() => setEditingUser(true)}
       />
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
@@ -147,6 +177,7 @@ export default function App() {
             onAddBook={() => setEditingBook('new')}
             onExport={exportData}
             onImport={() => fileInputRef.current?.click()}
+            user={user}
           />
         )}
         {view === 'library' && (
@@ -185,6 +216,79 @@ export default function App() {
       )}
 
       <input ref={fileInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={importData} />
+
+      {editingUser && (
+        <UserEditModal user={user} onSave={updateUser} onClose={() => setEditingUser(false)} />
+      )}
+    </div>
+  );
+}
+
+// ─── User Edit Modal ──────────────────────────────────────────────────────────
+function UserEditModal({ user, onSave, onClose }: { user: UserProfile; onSave: (u: UserProfile) => void; onClose: () => void }) {
+  const [name, setName] = useState(user.name);
+  const [role, setRole] = useState(user.role);
+  const AVATAR_COLORS = ['#006241','#7C3AED','#DB2777','#2563EB','#B45309','#0E7490'];
+
+  const initials = name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) || 'R';
+
+  function handleSave() {
+    if (!name.trim()) return;
+    onSave({ name: name.trim(), role: role.trim() || 'Lead Curator', initials, color: user.color });
+  }
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(27,28,25,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background:'#FAF9F4', borderRadius:16, padding:'32px 36px', width:400, boxShadow:'0 24px 60px rgba(27,28,25,0.18)' }}>
+        <div style={{ fontFamily:"'Newsreader',serif", fontStyle:'italic', fontSize:22, fontWeight:600, color:'#2D2D2D', marginBottom:6 }}>Your Profile</div>
+        <div style={{ fontSize:13, color:'#6B6B6B', marginBottom:24 }}>Set your name to personalize your archive.</div>
+
+        {/* Avatar preview */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:24 }}>
+          <div style={{ width:72, height:72, borderRadius:'50%', background:`linear-gradient(135deg,${user.color},${user.color}99)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:26, fontWeight:700, color:'#fff', fontFamily:"'Newsreader',serif", boxShadow:'0 8px 24px rgba(0,98,65,0.25)' }}>
+            {initials}
+          </div>
+        </div>
+
+        {/* Color picker */}
+        <div style={{ display:'flex', gap:8, justifyContent:'center', marginBottom:24 }}>
+          {AVATAR_COLORS.map(c => (
+            <div key={c} onClick={() => onSave({ ...user, name, role, initials, color: c })}
+              style={{ width:24, height:24, borderRadius:'50%', background:c, cursor:'pointer', border: user.color === c ? '3px solid #2D2D2D' : '3px solid transparent', transition:'border 0.15s' }} />
+          ))}
+        </div>
+
+        <div style={{ marginBottom:16 }}>
+          <div style={{ fontSize:10, fontWeight:700, textTransform:'uppercase' as const, letterSpacing:1, color:'#6B6B6B', marginBottom:7 }}>Your Name</div>
+          <input
+            autoFocus
+            style={{ width:'100%', background:'#FFFFFF', border:'1px solid rgba(45,45,45,0.18)', borderRadius:8, padding:'10px 14px', fontSize:14, fontFamily:"'Manrope',sans-serif", color:'#2D2D2D', outline:'none', boxSizing:'border-box' as const }}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="e.g. Julian"
+            onKeyDown={e => e.key === 'Enter' && handleSave()}
+          />
+        </div>
+        <div style={{ marginBottom:24 }}>
+          <div style={{ fontSize:10, fontWeight:700, textTransform:'uppercase' as const, letterSpacing:1, color:'#6B6B6B', marginBottom:7 }}>Title / Role</div>
+          <input
+            style={{ width:'100%', background:'#FFFFFF', border:'1px solid rgba(45,45,45,0.18)', borderRadius:8, padding:'10px 14px', fontSize:14, fontFamily:"'Manrope',sans-serif", color:'#2D2D2D', outline:'none', boxSizing:'border-box' as const }}
+            value={role}
+            onChange={e => setRole(e.target.value)}
+            placeholder="e.g. Lead Curator"
+          />
+        </div>
+
+        <div style={{ display:'flex', gap:10 }}>
+          <button onClick={handleSave} style={{ flex:1, padding:'11px 0', borderRadius:8, fontSize:14, fontFamily:"'Manrope',sans-serif", cursor:'pointer', border:'none', fontWeight:600, background:'linear-gradient(160deg,#067D55,#006241)', color:'#FFFFFF', boxShadow:'0 2px 8px rgba(0,98,65,0.25)' }}>
+            Save Profile
+          </button>
+          <button onClick={onClose} style={{ padding:'11px 18px', borderRadius:8, fontSize:13, cursor:'pointer', border:'1px solid rgba(45,45,45,0.18)', background:'transparent', color:'#4B4B4B' }}>
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -250,7 +354,7 @@ function getGreeting(): string {
 // ─── Home View ────────────────────────────────────────────────────────────────
 function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFilterGenre,
   filterFormat, onFilterFormat, filterRating, onFilterRating, onSelectBook,
-  onAddBook, onExport, onImport }: any) {
+  onAddBook, onExport, onImport, user }: any) {
   const allGenres: Genre[] = ['Fantasy','Romance','Sci-Fi','Fiction','Non-Fiction','Biography','Mystery','Western','War','Young Adult','Thriller','Historical'];
   const [filterOpen, setFilterOpen] = useState(false);
   const activeFilterCount = (filterGenre !== 'All' ? 1 : 0) + (filterFormat !== 'All' ? 1 : 0) + (filterRating > 0 ? 1 : 0);
@@ -261,7 +365,7 @@ function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFi
       {/* Top bar */}
       <div style={S.topbar}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={S.pageTitle}>{getGreeting()}</span>
+          <span style={S.pageTitle}>{getGreeting()}{user?.name && user.name !== 'Reader' ? `, ${user.name.split(' ')[0]}` : ''}</span>
         </div>
         <div style={S.topbarRight}>
           <div style={{ position: 'relative' }}>

@@ -23,14 +23,18 @@ const DEFAULT_PALETTE = { bg: 'linear-gradient(160deg,#F1F1ED 0%,#E8E8E0 100%)',
 
 export default function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
   const [cover, setCover] = useState<string | null>(book.coverUrl || null);
+  const [coverError, setCoverError] = useState(false);
   const [hover, setHover] = useState(false);
   const palette = GENRE_PALETTE[book.genres[0]] || DEFAULT_PALETTE;
 
   useEffect(() => {
-    if (!cover) {
+    setCoverError(false);
+    if (!book.coverUrl) {
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
+    } else {
+      setCover(book.coverUrl);
     }
-  }, []);
+  }, [book.id]);
 
   const statusDot = {
     Completed:      '#067D55',
@@ -60,8 +64,9 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
     >
       {/* Cover */}
       <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative' }}>
-        {cover ? (
-          <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        {cover && !coverError ? (
+          <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            onError={() => setCoverError(true)} />
         ) : (
           <div style={{
             width: '100%', height: '100%',

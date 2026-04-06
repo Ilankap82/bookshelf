@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Book } from '../types';
+import type { UserProfile } from '../App';
 
 type View = 'home' | 'library' | 'discovery' | 'stats';
 type FilterStatus = 'All' | 'Completed' | 'Reading' | 'Want to Read' | 'DNF';
@@ -12,6 +13,8 @@ interface Props {
   filterStatus: FilterStatus;
   onFilterStatus: (s: FilterStatus) => void;
   onAddBook: () => void;
+  user: UserProfile;
+  onEditUser: () => void;
 }
 
 // Thin SVG icons
@@ -48,7 +51,7 @@ const Icons = {
   ),
 };
 
-export default function Sidebar({ view, onViewChange, counts, currentlyReading, filterStatus, onFilterStatus, onAddBook }: Props) {
+export default function Sidebar({ view, onViewChange, counts, currentlyReading, filterStatus, onFilterStatus, onAddBook, user, onEditUser }: Props) {
   return (
     <aside style={{
       width: 240, minHeight: '100vh',
@@ -158,9 +161,45 @@ export default function Sidebar({ view, onViewChange, counts, currentlyReading, 
         </div>
       )}
 
+      {/* User profile card */}
+      <div
+        onClick={onEditUser}
+        style={{
+          margin: '0 12px 10px', padding: '12px 14px', borderRadius: 10,
+          background: 'rgba(0,98,65,0.06)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 11,
+          transition: 'background 0.15s ease',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,98,65,0.12)')}
+        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,98,65,0.06)')}
+      >
+        {/* Avatar */}
+        <div style={{
+          width: 36, height: 36, borderRadius: '50%',
+          background: user.color,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+          fontSize: 13, fontWeight: 700, color: '#FFFFFF',
+          fontFamily: "'Manrope', sans-serif",
+          boxShadow: `0 2px 8px ${user.color}55`,
+        }}>
+          {user.initials}
+        </div>
+        {/* Name + role */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{user.name}</div>
+          <div style={{ fontSize: 10, color: '#6B6B6B', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{user.role}</div>
+        </div>
+        {/* Edit icon */}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+
       {/* Settings at bottom */}
-      <div style={{ padding: '10px 10px 14px', borderTop: '1px solid rgba(45,45,45,0.08)' }}>
-        <NavItem icon={Icons.settings} label="Settings" active={false} onClick={() => {}} />
+      <div style={{ padding: '0 10px 14px' }}>
+        <NavItem icon={Icons.settings} label="Settings" active={false} onClick={onEditUser} />
       </div>
     </aside>
   );

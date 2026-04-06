@@ -7,10 +7,12 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   book: Book; onClose: () => void; onEdit: () => void; onDelete: () => void;
 }) {
   const [cover, setCover] = useState<string | null>(book.coverUrl || null);
+  const [coverError, setCoverError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     setCover(book.coverUrl || null);
+    setCoverError(false);
     setConfirmDelete(false);
     if (!book.coverUrl) {
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
@@ -70,8 +72,8 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           {/* Cover — 45% */}
           <div style={{ width: '42%', flexShrink: 0, paddingRight: 22 }}>
             <div style={{ aspectRatio: '2/3', borderRadius: 10, overflow: 'hidden', boxShadow: '0px 12px 32px rgba(27,28,25,0.14)', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)' }}>
-              {cover
-                ? <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              {cover && !coverError
+                ? <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={() => setCoverError(true)} />
                 : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.5 }}>📖</div>
               }
             </div>
