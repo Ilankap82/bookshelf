@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 import { GenreTag, StarRating } from '../App';
-import { fetchCoverUrl } from '../utils/cover';
+import { fetchCoverUrl, isBadCoverUrl } from '../utils/cover';
 
 // Light-theme placeholder palette — tonal, editorial
 const GENRE_PALETTE: Record<string, { bg: string; accent: string; text: string }> = {
@@ -31,10 +31,12 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
   useEffect(() => {
     setCoverError(false);
     setFetchedFallback(false);
-    if (!book.coverUrl) {
+    const storedUrl = book.coverUrl;
+    if (!storedUrl || isBadCoverUrl(storedUrl)) {
+      // No cover or known-bad stored URL — fetch fresh
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
     } else {
-      setCover(book.coverUrl);
+      setCover(storedUrl);
     }
   }, [book.id]);
 

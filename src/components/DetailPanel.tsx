@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 import { GenreTag, StarRating } from '../App';
-import { fetchCoverUrl } from '../utils/cover';
+import { fetchCoverUrl, isBadCoverUrl } from '../utils/cover';
 
 export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   book: Book; onClose: () => void; onEdit: () => void; onDelete: () => void;
@@ -12,11 +12,12 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
-    setCover(book.coverUrl || null);
+    const storedUrl = book.coverUrl || null;
+    setCover(storedUrl);
     setCoverError(false);
     setFetchedFallback(false);
     setConfirmDelete(false);
-    if (!book.coverUrl) {
+    if (!storedUrl || isBadCoverUrl(storedUrl)) {
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
     }
   }, [book.id]);
