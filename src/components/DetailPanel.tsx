@@ -24,10 +24,10 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   }, []);
 
   const statusStyle: Record<string, { bg: string; color: string; dot: string }> = {
-    Completed:      { bg: 'rgba(107,191,176,0.15)', color: '#6BBFB0', dot: '#6BBFB0' },
-    Reading:        { bg: 'rgba(232,168,56,0.15)',  color: '#E8A838', dot: '#E8A838' },
-    'Want to Read': { bg: 'rgba(240,234,224,0.08)', color: 'rgba(240,234,224,0.55)', dot: 'rgba(240,234,224,0.3)' },
-    DNF:            { bg: 'rgba(224,120,120,0.15)', color: '#E07878', dot: '#E07878' },
+    Completed:      { bg: 'rgba(6,125,85,0.10)',  color: '#067D55', dot: '#067D55' },
+    Reading:        { bg: 'rgba(217,119,6,0.10)',  color: '#D97706', dot: '#D97706' },
+    'Want to Read': { bg: 'rgba(45,45,45,0.07)',   color: '#6B6B6B', dot: '#A8A8A0' },
+    DNF:            { bg: 'rgba(220,38,38,0.10)',  color: '#DC2626', dot: '#DC2626' },
   };
   const ss = statusStyle[book.status] || statusStyle['Want to Read'];
 
@@ -44,78 +44,143 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
     return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
+  const pct = (book.pagesRead && book.pageCount) ? Math.min(100, Math.round((book.pagesRead / book.pageCount) * 100)) : null;
+
   return (
     <div
-      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.60)', zIndex:100, display:'flex', justifyContent:'flex-end', backdropFilter:'blur(3px)' }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(27,28,25,0.45)', zIndex: 100, display: 'flex', justifyContent: 'flex-end', backdropFilter: 'blur(4px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ width:400, background:'#141218', height:'100%', overflowY:'auto', display:'flex', flexDirection:'column', borderLeft:'1px solid rgba(255,255,255,0.10)', boxShadow:'-12px 0 60px rgba(0,0,0,0.60)', position:'relative', animation:'slideIn 0.28s cubic-bezier(0.16,1,0.3,1)' }}>
+      <div style={{ width: 520, background: '#FAF9F4', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', boxShadow: '-12px 0 60px rgba(27,28,25,0.15)', position: 'relative', animation: 'slideIn 0.28s cubic-bezier(0.16,1,0.3,1)' }}>
         <style>{`@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
 
-        {/* Close */}
-        <button onClick={onClose} style={{ position:'absolute', top:16, right:16, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.12)', width:30, height:30, borderRadius:'50%', fontSize:13, cursor:'pointer', color:'rgba(240,234,224,0.6)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10 }}>✕</button>
+        {/* Top action bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 22px', borderBottom: '1px solid rgba(45,45,45,0.08)' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1.5, color: '#6B6B6B' }}>Book Detail</span>
+          <button
+            onClick={onClose}
+            style={{ background: 'rgba(45,45,45,0.08)', border: 'none', width: 28, height: 28, borderRadius: '50%', fontSize: 13, cursor: 'pointer', color: '#4B4B4B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
 
-        {/* Hero */}
-        <div style={{ padding:'28px 24px 22px', display:'flex', gap:18, borderBottom:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(180deg,rgba(232,168,56,0.08) 0%,rgba(232,168,56,0.02) 50%,transparent 100%)', position:'relative' }}>
-          <div style={{ width:86, flexShrink:0, aspectRatio:'2/3', borderRadius:6, overflow:'hidden', boxShadow:'4px 6px 24px rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.10)' }}>
-            {cover
-              ? <img src={cover} alt={book.title} style={{ width:'100%',height:'100%',objectFit:'cover' }} />
-              : <div style={{ width:'100%',height:'100%',background:'linear-gradient(160deg,#3E384F,#1C1921)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,opacity:0.5 }}>📖</div>
-            }
-          </div>
-          <div style={{ flex:1, minWidth:0, paddingTop:4 }}>
-            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:17, fontWeight:700, color:'#F0EAE0', lineHeight:1.3, marginBottom:4 }}>{book.title}</div>
-            <div style={{ fontSize:13, color:'rgba(240,234,224,0.55)', marginBottom:10 }}>{book.author}</div>
-            <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:10 }}>
-              {book.genres.map(g => <GenreTag key={g} genre={g} />)}
+        {/* Split layout: cover + metadata */}
+        <div style={{ display: 'flex', gap: 0, padding: '28px 24px', borderBottom: '1px solid rgba(45,45,45,0.08)' }}>
+          {/* Cover — 45% */}
+          <div style={{ width: '42%', flexShrink: 0, paddingRight: 22 }}>
+            <div style={{ aspectRatio: '2/3', borderRadius: 10, overflow: 'hidden', boxShadow: '0px 12px 32px rgba(27,28,25,0.14)', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)' }}>
+              {cover
+                ? <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.5 }}>📖</div>
+              }
             </div>
-            {book.rating && <div style={{ fontSize:17, color:'#E8A838', letterSpacing:-0.5, marginBottom:8 }}><StarRating rating={book.rating} size={17} /></div>}
-            <div style={{ display:'inline-flex', alignItems:'center', gap:5, fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:12, background:ss.bg, color:ss.color }}>
-              <span style={{ width:6, height:6, borderRadius:'50%', background:ss.dot }} />
+          </div>
+
+          {/* Metadata — 58% */}
+          <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
+            <div style={{ fontFamily: "'Newsreader', serif", fontStyle: 'italic' as const, fontSize: 20, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.3, marginBottom: 5 }}>{book.title}</div>
+            <div style={{ fontSize: 14, color: '#6B6B6B', marginBottom: 14 }}>{book.author}</div>
+
+            {/* Metadata ribbon */}
+            <div style={{ display: 'flex', gap: 14, marginBottom: 14, flexWrap: 'wrap' as const }}>
+              {book.pageCount && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" strokeWidth="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                  <span style={{ fontSize: 12, color: '#4B4B4B', fontWeight: 500 }}>{book.pageCount.toLocaleString()} pp</span>
+                </div>
+              )}
+              {book.rating && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <StarRating rating={book.rating} size={13} />
+                  <span style={{ fontSize: 12, color: '#4B4B4B', fontWeight: 500 }}>{book.rating}</span>
+                </div>
+              )}
+              {book.format && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" strokeWidth="1.6"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  <span style={{ fontSize: 12, color: '#4B4B4B', fontWeight: 500 }}>{book.format}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Status badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, padding: '4px 11px', borderRadius: 12, background: ss.bg, color: ss.color, marginBottom: 12 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: ss.dot, flexShrink: 0 }} />
               {book.status}
+            </div>
+
+            {/* Reading progress */}
+            {book.status === 'Reading' && pct !== null && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <span style={{ fontSize: 11, color: '#6B6B6B' }}>Reading progress</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#006241' }}>{pct}%</span>
+                </div>
+                <div style={{ height: 5, background: '#F1F1ED', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #067D55, #006241)', borderRadius: 3 }} />
+                </div>
+              </div>
+            )}
+
+            {/* Genre tags */}
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5 }}>
+              {book.genres.map(g => <GenreTag key={g} genre={g} />)}
             </div>
           </div>
         </div>
 
         {/* Body */}
-        <div style={{ padding:'22px 24px', flex:1 }}>
+        <div style={{ padding: '22px 24px', flex: 1 }}>
+          {/* Metadata rows */}
           <Row label="Started"  value={fmtDate(book.startDate)} />
           <Row label="Finished" value={book.finishDate ? `${fmtDate(book.finishDate)}${days ? ` · ${days} days` : ''}` : '—'} />
-          <Row label="Pages"    value={book.pageCount ? book.pageCount.toLocaleString() : '—'} />
-          <Row label="Format"   value={book.format || '—'} />
           <Row label="Series"   value={book.seriesType === 'Standalone' || !book.seriesName
             ? (book.seriesType || '—')
             : `${book.seriesName}${book.seriesPosition ? ` #${book.seriesPosition}` : ''} · ${book.seriesType}`} />
+
           {book.tropes.length > 0 && (
-            <div style={{ display:'flex', marginBottom:16, alignItems:'flex-start' }}>
+            <div style={{ marginBottom: 16 }}>
               <div style={labelStyle}>Tropes</div>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5, marginTop: 6 }}>
                 {book.tropes.map(t => (
-                  <span key={t} style={{ background:'rgba(232,168,56,0.12)', color:'#F5CC7A', fontSize:11, fontWeight:500, padding:'3px 9px', borderRadius:10, border:'1px solid rgba(232,168,56,0.20)' }}>{t}</span>
+                  <span key={t} style={{ background: 'rgba(0,98,65,0.08)', color: '#006241', fontSize: 11, fontWeight: 500, padding: '3px 9px', borderRadius: 10 }}>{t}</span>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Personal Notes */}
           {book.notes && (
-            <div style={{ display:'flex', marginBottom:16, alignItems:'flex-start' }}>
-              <div style={labelStyle}>Notes</div>
-              <div style={{ fontSize:13, color:'rgba(240,234,224,0.6)', fontStyle:'italic', lineHeight:1.6 }}>{book.notes}</div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={labelStyle}>Personal Notes</div>
+              <div style={{ marginTop: 8, padding: '12px 14px', background: '#F1F1ED', borderRadius: 8, fontSize: 13, color: '#4B4B4B', fontStyle: 'italic' as const, lineHeight: 1.7 }}>
+                {book.notes}
+              </div>
             </div>
           )}
         </div>
 
         {/* Actions */}
-        <div style={{ padding:'16px 24px 22px', borderTop:'1px solid rgba(255,255,255,0.08)', display:'flex', gap:8 }}>
-          <button onClick={onEdit} style={{ flex:1, padding:'9px 0', borderRadius:8, fontSize:13, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', border:'1px solid rgba(255,200,80,0.5)', fontWeight:600, background:'linear-gradient(160deg,#F2BC45 0%,#CC8E1E 100%)', color:'#0D0C0F' }}>
+        <div style={{ padding: '16px 24px 24px', borderTop: '1px solid rgba(45,45,45,0.08)', display: 'flex', gap: 8 }}>
+          <button
+            onClick={onEdit}
+            style={{ flex: 1, padding: '10px 0', borderRadius: 8, fontSize: 13, fontFamily: "'Manrope', sans-serif", cursor: 'pointer', border: 'none', fontWeight: 600, background: 'linear-gradient(160deg, #067D55 0%, #006241 100%)', color: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,98,65,0.25)' }}
+          >
             Edit Book
           </button>
           {confirmDelete ? (
             <>
-              <button onClick={onDelete} style={{ padding:'9px 14px', borderRadius:8, fontSize:12, cursor:'pointer', border:'1px solid rgba(224,120,120,0.5)', background:'rgba(224,120,120,0.18)', color:'#E07878', fontWeight:600 }}>Confirm</button>
-              <button onClick={() => setConfirmDelete(false)} style={{ padding:'9px 14px', borderRadius:8, fontSize:12, cursor:'pointer', border:'1px solid rgba(255,255,255,0.15)', background:'rgba(255,255,255,0.07)', color:'rgba(240,234,224,0.7)', fontWeight:500 }}>Cancel</button>
+              <button onClick={onDelete} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(220,38,38,0.35)', background: 'rgba(220,38,38,0.08)', color: '#DC2626', fontWeight: 600 }}>Confirm Delete</button>
+              <button onClick={() => setConfirmDelete(false)} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(45,45,45,0.18)', background: 'transparent', color: '#4B4B4B' }}>Cancel</button>
             </>
           ) : (
-            <button onClick={() => setConfirmDelete(true)} style={{ padding:'9px 14px', borderRadius:8, fontSize:13, cursor:'pointer', border:'1px solid rgba(224,120,120,0.25)', background:'transparent', color:'#E07878' }}>🗑</button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              style={{ padding: '10px 14px', borderRadius: 8, fontSize: 13, cursor: 'pointer', border: '1px solid rgba(220,38,38,0.25)', background: 'transparent', color: '#DC2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
           )}
         </div>
       </div>
@@ -124,16 +189,15 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
 }
 
 const labelStyle: React.CSSProperties = {
-  width: 100, flexShrink: 0, fontSize: 11,
-  textTransform: 'uppercase', letterSpacing: '0.8px',
-  color: 'rgba(240,234,224,0.45)', fontWeight: 600, paddingTop: 1,
+  fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px',
+  color: '#6B6B6B', fontWeight: 700, marginBottom: 0,
 };
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display:'flex', marginBottom:16, alignItems:'flex-start' }}>
-      <div style={labelStyle}>{label}</div>
-      <div style={{ fontSize:13, color:'#F0EAE0', lineHeight:1.5 }}>{value}</div>
+    <div style={{ display: 'flex', marginBottom: 14, alignItems: 'flex-start', gap: 16 }}>
+      <div style={{ ...labelStyle, width: 80, flexShrink: 0, paddingTop: 1 }}>{label}</div>
+      <div style={{ fontSize: 13, color: '#2D2D2D', lineHeight: 1.5 }}>{value}</div>
     </div>
   );
 }

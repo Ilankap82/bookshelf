@@ -3,22 +3,23 @@ import type { Book } from '../types';
 import { GenreTag, StarRating } from '../App';
 import { fetchCoverUrl } from '../utils/cover';
 
-const GENRE_PALETTE: Record<string, { bg: string; accent: string; spine: string }> = {
-  Fantasy:       { bg: 'linear-gradient(160deg,#2A1F3D 0%,#1A1428 100%)', accent: '#A98EE0', spine: 'rgba(169,142,224,0.35)' },
-  Romance:       { bg: 'linear-gradient(160deg,#3D1F2A 0%,#281418 100%)', accent: '#F0A0A0', spine: 'rgba(240,160,160,0.35)' },
-  'Sci-Fi':      { bg: 'linear-gradient(160deg,#1A2B3D 0%,#111C28 100%)', accent: '#7AAEE8', spine: 'rgba(122,174,232,0.35)' },
-  Fiction:       { bg: 'linear-gradient(160deg,#2D2418 0%,#1C1610 100%)', accent: '#F5CC7A', spine: 'rgba(245,204,122,0.35)' },
-  'Non-Fiction': { bg: 'linear-gradient(160deg,#1E2220 0%,#141715 100%)', accent: '#A8C8A8', spine: 'rgba(168,200,168,0.30)' },
-  Biography:     { bg: 'linear-gradient(160deg,#2E2216 0%,#1C1510 100%)', accent: '#E8C090', spine: 'rgba(232,192,144,0.35)' },
-  Mystery:       { bg: 'linear-gradient(160deg,#1D2828 0%,#121919 100%)', accent: '#A0D0A0', spine: 'rgba(160,208,160,0.30)' },
-  Western:       { bg: 'linear-gradient(160deg,#2C2010 0%,#1C1408 100%)', accent: '#D4B08A', spine: 'rgba(212,176,138,0.35)' },
-  War:           { bg: 'linear-gradient(160deg,#2A1C1C 0%,#1A1010 100%)', accent: '#D09090', spine: 'rgba(208,144,144,0.30)' },
-  'Young Adult': { bg: 'linear-gradient(160deg,#1A2C30 0%,#101C20 100%)', accent: '#80C8D8', spine: 'rgba(128,200,216,0.35)' },
-  Thriller:      { bg: 'linear-gradient(160deg,#201A2E 0%,#14101E 100%)', accent: '#A090C8', spine: 'rgba(160,144,200,0.30)' },
-  Historical:    { bg: 'linear-gradient(160deg,#28200E 0%,#181408 100%)', accent: '#C8A870', spine: 'rgba(200,168,112,0.30)' },
-  Crime:         { bg: 'linear-gradient(160deg,#1E1818 0%,#131010 100%)', accent: '#C09898', spine: 'rgba(192,152,152,0.30)' },
+// Light-theme placeholder palette — tonal, editorial
+const GENRE_PALETTE: Record<string, { bg: string; accent: string; text: string }> = {
+  Fantasy:       { bg: 'linear-gradient(160deg,#EDE8F8 0%,#DDD4F5 100%)', accent: '#7C3AED', text: '#5B21B6' },
+  Romance:       { bg: 'linear-gradient(160deg,#FDE8F0 0%,#FBD0E3 100%)', accent: '#DB2777', text: '#9D174D' },
+  'Sci-Fi':      { bg: 'linear-gradient(160deg,#E8F0FE 0%,#D4E4FF 100%)', accent: '#2563EB', text: '#1E40AF' },
+  Fiction:       { bg: 'linear-gradient(160deg,#E8F5F0 0%,#D0EBE1 100%)', accent: '#067D55', text: '#065F46' },
+  'Non-Fiction': { bg: 'linear-gradient(160deg,#F5F5F0 0%,#E8E8E0 100%)', accent: '#4B4B4B', text: '#374151' },
+  Biography:     { bg: 'linear-gradient(160deg,#FEF3E8 0%,#FDE8CC 100%)', accent: '#B45309', text: '#92400E' },
+  Mystery:       { bg: 'linear-gradient(160deg,#E8F5EC 0%,#D0EBD8 100%)', accent: '#059669', text: '#064E3B' },
+  Western:       { bg: 'linear-gradient(160deg,#FDF3E8 0%,#FAEBD0 100%)', accent: '#92400E', text: '#78350F' },
+  War:           { bg: 'linear-gradient(160deg,#FEE8E8 0%,#FDD8D8 100%)', accent: '#B91C1C', text: '#7F1D1D' },
+  'Young Adult': { bg: 'linear-gradient(160deg,#E8F9FE 0%,#CCF0FB 100%)', accent: '#0E7490', text: '#164E63' },
+  Thriller:      { bg: 'linear-gradient(160deg,#EEE8FE 0%,#DDD4FC 100%)', accent: '#4F46E5', text: '#3730A3' },
+  Historical:    { bg: 'linear-gradient(160deg,#FEF5E8 0%,#FCECD0 100%)', accent: '#B45309', text: '#92400E' },
+  Crime:         { bg: 'linear-gradient(160deg,#FEE8EE 0%,#FCD4DF 100%)', accent: '#BE123C', text: '#9F1239' },
 };
-const DEFAULT_PALETTE = { bg: 'linear-gradient(160deg,#302B3E 0%,#1C1921 100%)', accent: '#F5CC7A', spine: 'rgba(245,204,122,0.25)' };
+const DEFAULT_PALETTE = { bg: 'linear-gradient(160deg,#F1F1ED 0%,#E8E8E0 100%)', accent: '#006241', text: '#065F46' };
 
 export default function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
   const [cover, setCover] = useState<string | null>(book.coverUrl || null);
@@ -32,11 +33,11 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
   }, []);
 
   const statusDot = {
-    Completed:      { bg: '#6BBFB0', glow: 'rgba(107,191,176,0.6)' },
-    Reading:        { bg: '#E8A838', glow: 'rgba(232,168,56,0.7)' },
-    'Want to Read': { bg: 'rgba(240,234,224,0.25)', glow: 'none' },
-    DNF:            { bg: '#E07878', glow: 'rgba(224,120,120,0.5)' },
-  }[book.status] || { bg: 'rgba(240,234,224,0.25)', glow: 'none' };
+    Completed:      '#067D55',
+    Reading:        '#D97706',
+    'Want to Read': '#A8A8A0',
+    DNF:            '#DC2626',
+  }[book.status] || '#A8A8A0';
 
   return (
     <div
@@ -44,38 +45,42 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        background: '#1C1921',
-        border: book.status === 'Reading'
-          ? '1px solid rgba(232,168,56,0.45)'
-          : hover ? '1px solid rgba(232,168,56,0.30)' : '1px solid rgba(255,255,255,0.07)',
+        background: '#FFFFFF',
         borderRadius: 10,
         overflow: 'hidden',
         cursor: 'pointer',
-        transform: hover ? 'translateY(-4px)' : 'none',
-        boxShadow: hover ? '0 14px 36px rgba(0,0,0,0.55)' : book.status === 'Reading' ? '0 0 0 1px rgba(232,168,56,0.20)' : 'none',
-        transition: 'transform 0.18s, box-shadow 0.18s, border-color 0.18s',
+        transform: hover ? 'translateY(-3px)' : 'none',
+        boxShadow: hover
+          ? '0px 16px 40px rgba(27,28,25,0.12)'
+          : book.status === 'Reading'
+            ? '0px 8px 24px rgba(0,98,65,0.10), 0 0 0 1.5px rgba(6,125,85,0.25)'
+            : '0px 8px 24px rgba(27,28,25,0.06)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       }}
     >
       {/* Cover */}
       <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative' }}>
         {cover ? (
-          <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
+          <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         ) : (
           <div style={{
             width: '100%', height: '100%',
             background: palette.bg,
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             justifyContent: 'space-between', padding: '14px 10px 16px',
-            position: 'relative', overflow: 'hidden',
+            position: 'relative',
           }}>
-            {/* Spine accent line */}
-            <div style={{ position: 'absolute', left: 0, top: 0, width: 3, height: '100%', background: `linear-gradient(180deg, transparent 0%, ${palette.spine} 30%, ${palette.spine} 70%, transparent 100%)` }} />
-            {/* Top decoration */}
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: `radial-gradient(circle, ${palette.accent}26 0%, transparent 70%)`, border: `1px solid ${palette.accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, opacity: 0.7 }}>📖</div>
-            {/* Title block */}
-            <div style={{ textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 2px' }}>
-              <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 10, fontWeight: 700, color: palette.accent, textAlign: 'center', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+            {/* Thin spine line */}
+            <div style={{ position: 'absolute', left: 0, top: 0, width: 2.5, height: '100%', background: `linear-gradient(180deg, transparent 0%, ${palette.accent}40 30%, ${palette.accent}40 70%, transparent 100%)` }} />
+            {/* Icon */}
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: `${palette.accent}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>📖</div>
+            {/* Title */}
+            <div style={{ textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 4px' }}>
+              <span style={{
+                fontFamily: "'Newsreader', serif", fontSize: 10.5, fontWeight: 600,
+                color: palette.text, textAlign: 'center', lineHeight: 1.5,
+                display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+              }}>
                 {book.title}
               </span>
             </div>
@@ -89,17 +94,23 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
         <div style={{
           position: 'absolute', top: 8, right: 8,
           width: 7, height: 7, borderRadius: '50%',
-          background: statusDot.bg,
-          boxShadow: statusDot.glow !== 'none' ? `0 0 7px ${statusDot.glow}` : 'none',
+          background: statusDot,
+          boxShadow: `0 0 0 2px rgba(255,255,255,0.9)`,
         }} />
+        {/* Reading progress bar at bottom of cover */}
+        {book.status === 'Reading' && book.pagesRead && book.pageCount && (
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.4)' }}>
+            <div style={{ height: '100%', width: `${Math.min(100, Math.round((book.pagesRead / book.pageCount) * 100))}%`, background: 'linear-gradient(90deg, #067D55, #006241)' }} />
+          </div>
+        )}
       </div>
 
       {/* Info */}
       <div style={{ padding: '10px 11px 12px' }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#F0EAE0', lineHeight: 1.35, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.35, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
           {book.title}
         </div>
-        <div style={{ fontSize: 11, color: 'rgba(240,234,224,0.5)', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {book.author}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>

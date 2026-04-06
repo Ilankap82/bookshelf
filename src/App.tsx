@@ -11,7 +11,7 @@ import StatsDashboard from './components/StatsDashboard';
 import RecommendationsView from './components/RecommendationsView';
 import Sidebar from './components/Sidebar';
 
-type View = 'library' | 'recs' | 'stats';
+type View = 'home' | 'library' | 'discovery' | 'stats';
 type FilterStatus = Status | 'All';
 
 const STORAGE_KEY = 'bookshelf_data';
@@ -34,7 +34,7 @@ function saveData(books: Book[]) {
 
 export default function App() {
   const [books, setBooks] = useState<Book[]>(loadData);
-  const [view, setView] = useState<View>('library');
+  const [view, setView] = useState<View>('home');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('All');
   const [filterGenre, setFilterGenre] = useState<Genre | 'All'>('All');
   const [filterFormat, setFilterFormat] = useState<string>('All');
@@ -60,7 +60,7 @@ export default function App() {
     });
   }, [books, filterStatus, filterGenre, filterFormat, filterRating, search]);
 
-  const currentlyReading = books.find(b => b.status === 'Reading');
+  const currentlyReading = books.filter(b => b.status === 'Reading');
 
   function addOrUpdateBook(book: Book) {
     setBooks(prev => {
@@ -116,24 +116,61 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0D0C0F', color: '#F0EAE0', fontFamily: "'DM Sans',sans-serif" }}>
-      <Sidebar view={view} onViewChange={setView} counts={counts} currentlyReading={currentlyReading}
-        filterStatus={filterStatus} onFilterStatus={(s: FilterStatus) => { setFilterStatus(s); setView('library'); }} />
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#FAF9F4', color: '#2D2D2D', fontFamily: "'Manrope', sans-serif" }}>
+      <Sidebar
+        view={view}
+        onViewChange={(v: string) => setView(v as View)}
+        counts={counts}
+        currentlyReading={currentlyReading[0] || null}
+        filterStatus={filterStatus}
+        onFilterStatus={(s: FilterStatus) => { setFilterStatus(s); setView('library'); }}
+        onAddBook={() => setEditingBook('new')}
+      />
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-        {view === 'library' && (
-          <LibraryView
-            books={filteredBooks} allBooks={books} search={search} onSearch={setSearch}
-            filterGenre={filterGenre} onFilterGenre={setFilterGenre}
-            filterFormat={filterFormat} onFilterFormat={setFilterFormat}
-            filterRating={filterRating} onFilterRating={setFilterRating}
-            filterStatus={filterStatus} onFilterStatus={(s: FilterStatus) => setFilterStatus(s)}
-            onSelectBook={setSelectedBook} onAddBook={() => setEditingBook('new')}
-            onExport={exportData} onImport={() => fileInputRef.current?.click()}
+        {view === 'home' && (
+          <HomeView
+            books={filteredBooks}
+            allBooks={books}
             currentlyReading={currentlyReading}
+            search={search}
+            onSearch={setSearch}
+            filterGenre={filterGenre}
+            onFilterGenre={setFilterGenre}
+            filterFormat={filterFormat}
+            onFilterFormat={setFilterFormat}
+            filterRating={filterRating}
+            onFilterRating={setFilterRating}
+            filterStatus={filterStatus}
+            onFilterStatus={(s: FilterStatus) => setFilterStatus(s)}
+            onSelectBook={setSelectedBook}
+            onAddBook={() => setEditingBook('new')}
+            onExport={exportData}
+            onImport={() => fileInputRef.current?.click()}
           />
         )}
-        {view === 'recs' && <RecommendationsView recommendations={RECOMMENDATIONS} books={books} onAddToList={addToWantToRead} />}
+        {view === 'library' && (
+          <LibraryView
+            books={filteredBooks}
+            allBooks={books}
+            search={search}
+            onSearch={setSearch}
+            filterGenre={filterGenre}
+            onFilterGenre={setFilterGenre}
+            filterFormat={filterFormat}
+            onFilterFormat={setFilterFormat}
+            filterRating={filterRating}
+            onFilterRating={setFilterRating}
+            filterStatus={filterStatus}
+            onFilterStatus={(s: FilterStatus) => setFilterStatus(s)}
+            onSelectBook={setSelectedBook}
+            onAddBook={() => setEditingBook('new')}
+            onExport={exportData}
+            onImport={() => fileInputRef.current?.click()}
+            currentlyReading={currentlyReading[0] || null}
+          />
+        )}
+        {view === 'discovery' && <RecommendationsView recommendations={RECOMMENDATIONS} books={books} onAddToList={addToWantToRead} />}
         {view === 'stats' && <StatsDashboard books={books} />}
       </main>
 
@@ -156,15 +193,19 @@ export default function App() {
 export function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   const [hover, setHover] = useState(false);
   return (
-    <div onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ padding: '5px 13px', borderRadius: 20, fontSize: 12, fontWeight: active ? 600 : 500,
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        padding: '5px 13px', borderRadius: 20, fontSize: 12, fontWeight: active ? 600 : 500,
         cursor: 'pointer', whiteSpace: 'nowrap' as const, flexShrink: 0, userSelect: 'none' as const,
-        border: active ? '1px solid rgba(232,168,56,0.45)' : '1px solid rgba(240,234,224,0.14)',
-        background: active ? 'linear-gradient(135deg,rgba(232,168,56,0.22),rgba(232,168,56,0.10))'
-          : hover ? 'rgba(240,234,224,0.09)' : 'rgba(240,234,224,0.05)',
-        color: active ? '#F5CC7A' : hover ? '#F0EAE0' : 'rgba(240,234,224,0.6)',
-        transition: 'all 0.12s',
-      }}>
+        border: active ? '1px solid rgba(0,98,65,0.35)' : '1px solid rgba(45,45,45,0.14)',
+        background: active ? 'rgba(0,98,65,0.10)' : hover ? 'rgba(45,45,45,0.06)' : 'transparent',
+        color: active ? '#006241' : hover ? '#2D2D2D' : '#6B6B6B',
+        transition: 'all 0.15s ease',
+      }}
+    >
       {label}
     </div>
   );
@@ -172,109 +213,90 @@ export function FilterChip({ label, active, onClick }: { label: string; active: 
 
 export function GenreTag({ genre }: { genre: string }) {
   const map: Record<string, { bg: string; color: string }> = {
-    Fantasy:       { bg: 'rgba(169,142,224,0.16)', color: '#A98EE0' },
-    Romance:       { bg: 'rgba(224,120,120,0.16)', color: '#F0A0A0' },
-    'Sci-Fi':      { bg: 'rgba(122,174,232,0.16)', color: '#7AAEE8' },
-    Fiction:       { bg: 'rgba(232,168,56,0.15)',  color: '#F5CC7A' },
-    'Non-Fiction': { bg: 'rgba(255,255,255,0.07)', color: 'rgba(240,234,224,0.55)' },
-    Biography:     { bg: 'rgba(200,150,90,0.16)',  color: '#E8C090' },
-    Mystery:       { bg: 'rgba(150,180,150,0.16)', color: '#A0D0A0' },
-    Western:       { bg: 'rgba(180,140,80,0.16)',  color: '#D4B08A' },
-    War:           { bg: 'rgba(180,100,100,0.16)', color: '#D09090' },
-    'Young Adult': { bg: 'rgba(100,180,200,0.16)', color: '#80C8D8' },
-    Thriller:      { bg: 'rgba(120,100,180,0.16)', color: '#A090C8' },
-    Historical:    { bg: 'rgba(160,130,80,0.16)',  color: '#C8A870' },
+    Fantasy:       { bg: 'rgba(124,58,237,0.10)',  color: '#6D28D9' },
+    Romance:       { bg: 'rgba(219,39,119,0.10)',  color: '#BE185D' },
+    'Sci-Fi':      { bg: 'rgba(37,99,235,0.10)',   color: '#1D4ED8' },
+    Fiction:       { bg: 'rgba(0,98,65,0.10)',     color: '#006241' },
+    'Non-Fiction': { bg: 'rgba(45,45,45,0.08)',    color: '#4B4B4B' },
+    Biography:     { bg: 'rgba(180,83,9,0.10)',    color: '#92400E' },
+    Mystery:       { bg: 'rgba(5,150,105,0.10)',   color: '#047857' },
+    Western:       { bg: 'rgba(120,53,15,0.10)',   color: '#78350F' },
+    War:           { bg: 'rgba(127,29,29,0.10)',   color: '#7F1D1D' },
+    'Young Adult': { bg: 'rgba(6,182,212,0.10)',   color: '#0E7490' },
+    Thriller:      { bg: 'rgba(79,70,229,0.10)',   color: '#4338CA' },
+    Historical:    { bg: 'rgba(146,64,14,0.10)',   color: '#92400E' },
   };
-  const s = map[genre] || { bg: 'rgba(255,255,255,0.07)', color: 'rgba(240,234,224,0.55)' };
-  return <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 10, background: s.bg, color: s.color, whiteSpace: 'nowrap' as const }}>{genre}</span>;
+  const s = map[genre] || { bg: 'rgba(45,45,45,0.08)', color: '#4B4B4B' };
+  return (
+    <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: s.bg, color: s.color, whiteSpace: 'nowrap' as const, letterSpacing: '0.2px' }}>
+      {genre}
+    </span>
+  );
 }
 
 export function StarRating({ rating, size = 13 }: { rating: number; size?: number }) {
   const full = Math.floor(rating);
   const half = rating % 1 >= 0.5;
-  return <span style={{ fontSize: size, color: '#E8A838', letterSpacing: -0.5 }}>{'★'.repeat(full)}{half ? '½' : ''}</span>;
+  return <span style={{ fontSize: size, color: '#D97706', letterSpacing: -0.5 }}>{'★'.repeat(full)}{half ? '½' : ''}</span>;
 }
 
-// ─── Library View ─────────────────────────────────────────────────────────────
-function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filterFormat, onFilterFormat,
-  filterRating, onFilterRating, filterStatus, onSelectBook, onAddBook, onExport, onImport, currentlyReading }: any) {
-  const completed  = books.filter((b: Book) => b.status === 'Completed');
-  const wantToRead = books.filter((b: Book) => b.status === 'Want to Read');
-  const dnf        = books.filter((b: Book) => b.status === 'DNF');
-  const reading    = books.filter((b: Book) => b.status === 'Reading');
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Good Morning';
+  if (hour >= 12 && hour < 18) return 'Good Afternoon';
+  return 'Good Evening';
+}
+
+// ─── Home View ────────────────────────────────────────────────────────────────
+function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFilterGenre,
+  filterFormat, onFilterFormat, filterRating, onFilterRating, onSelectBook,
+  onAddBook, onExport, onImport }: any) {
   const allGenres: Genre[] = ['Fantasy','Romance','Sci-Fi','Fiction','Non-Fiction','Biography','Mystery','Western','War','Young Adult','Thriller','Historical'];
   const [filterOpen, setFilterOpen] = useState(false);
-
   const activeFilterCount = (filterGenre !== 'All' ? 1 : 0) + (filterFormat !== 'All' ? 1 : 0) + (filterRating > 0 ? 1 : 0);
-
-  function clearFilters() {
-    onFilterGenre('All');
-    onFilterFormat('All');
-    onFilterRating(0);
-  }
+  function clearFilters() { onFilterGenre('All'); onFilterFormat('All'); onFilterRating(0); }
 
   return (
     <>
+      {/* Top bar */}
       <div style={S.topbar}>
-        <span style={S.pageTitle}>My Library</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={S.pageTitle}>{getGreeting()}</span>
+        </div>
         <div style={S.topbarRight}>
           <div style={{ position: 'relative' }}>
-            <span style={S.searchIcon}>🔍</span>
+            <span style={S.searchIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </span>
             <input style={S.searchInput} placeholder="Search books, authors..." value={search} onChange={e => onSearch(e.target.value)} />
           </div>
-          {/* Filter button with popover */}
           <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setFilterOpen(o => !o)}
-              style={{
-                ...S.btnGhost,
-                border: activeFilterCount > 0 ? '1px solid rgba(232,168,56,0.45)' : S.btnGhost.border,
-                color: activeFilterCount > 0 ? '#F5CC7A' : (S.btnGhost as any).color,
-                display: 'flex', alignItems: 'center', gap: 6,
-              }}
-            >
-              <span style={{ fontSize: 13 }}>⊞</span>
+            <button onClick={() => setFilterOpen(o => !o)} style={{ ...S.btnGhost, border: activeFilterCount > 0 ? '1px solid rgba(0,98,65,0.4)' : (S.btnGhost as any).border, color: activeFilterCount > 0 ? '#006241' : (S.btnGhost as any).color, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
               Filters
-              {activeFilterCount > 0 && (
-                <span style={{ background: 'linear-gradient(135deg,#F2BC45,#C88820)', color: '#0D0C0F', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8 }}>{activeFilterCount}</span>
-              )}
+              {activeFilterCount > 0 && <span style={{ background: '#006241', color: '#fff', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8 }}>{activeFilterCount}</span>}
             </button>
             {filterOpen && (
               <>
-                {/* Backdrop */}
                 <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setFilterOpen(false)} />
-                {/* Popover */}
-                <div style={{
-                  position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50,
-                  background: '#1C1921', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 12, boxShadow: '0 16px 48px rgba(0,0,0,0.6)', padding: '18px 20px',
-                  width: 320, animation: 'fadeDown 0.15s ease',
-                }}>
-                  <style>{`@keyframes fadeDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }`}</style>
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(45,45,45,0.10)', borderRadius: 12, boxShadow: '0 16px 48px rgba(27,28,25,0.12)', padding: '18px 20px', width: 320 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'rgba(240,234,224,0.45)' }}>Filters</span>
-                    {activeFilterCount > 0 && (
-                      <span onClick={clearFilters} style={{ fontSize: 11, color: '#F5CC7A', cursor: 'pointer', opacity: 0.8 }}>Clear all</span>
-                    )}
+                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1, color: '#6B6B6B' }}>Filters</span>
+                    {activeFilterCount > 0 && <span onClick={clearFilters} style={{ fontSize: 11, color: '#006241', cursor: 'pointer' }}>Clear all</span>}
                   </div>
-
                   <div style={{ marginBottom: 16 }}>
                     <div style={S.filterLabel}>Genre</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5 }}>
                       <FilterChip label="All" active={filterGenre === 'All'} onClick={() => onFilterGenre('All')} />
                       {allGenres.map(g => <FilterChip key={g} label={g} active={filterGenre === g} onClick={() => onFilterGenre(g)} />)}
                     </div>
                   </div>
-
                   <div style={{ marginBottom: 16 }}>
                     <div style={S.filterLabel}>Format</div>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                      {['All','eBook','Audio Book','Print'].map(f =>
-                        <FilterChip key={f} label={f === 'All' ? 'All Formats' : f} active={filterFormat === f} onClick={() => onFilterFormat(f)} />
-                      )}
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+                      {['All','eBook','Audio Book','Print'].map(f => <FilterChip key={f} label={f === 'All' ? 'All Formats' : f} active={filterFormat === f} onClick={() => onFilterFormat(f)} />)}
                     </div>
                   </div>
-
                   <div>
                     <div style={S.filterLabel}>Minimum Rating</div>
                     <div style={{ display: 'flex', gap: 5 }}>
@@ -294,10 +316,121 @@ function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filt
         </div>
       </div>
 
-      {/* Active filter pills row — only shown when filters are active */}
+      <div style={S.content}>
+        {/* Currently Immersed section */}
+        {currentlyReading.length > 0 && (
+          <div style={{ marginBottom: 36 }}>
+            <SectionHeader title="Currently Immersed" />
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 14 }}>
+              {currentlyReading.slice(0, 2).map((book: Book) => (
+                <CurrentlyImmersedCard key={book.id} book={book} onClick={() => onSelectBook(book)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* The Archive */}
+        <SectionHeader title="The Archive" count={books.length} />
+        {activeFilterCount > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 16 }}>
+            <span style={{ fontSize: 11, color: '#6B6B6B', alignSelf: 'center' }}>Active filters:</span>
+            {filterGenre !== 'All' && <FilterChip label={filterGenre} active onClick={() => onFilterGenre('All')} />}
+            {filterFormat !== 'All' && <FilterChip label={filterFormat} active onClick={() => onFilterFormat('All')} />}
+            {filterRating > 0 && <FilterChip label={`★ ${filterRating}+`} active onClick={() => onFilterRating(0)} />}
+          </div>
+        )}
+        {books.filter((b: Book) => b.status === 'Completed').length > 0 && (
+          <><SectionHeader title="Completed" count={books.filter((b: Book) => b.status === 'Completed').length} sub /><BookGrid books={books.filter((b: Book) => b.status === 'Completed')} onSelect={onSelectBook} /></>
+        )}
+        {books.filter((b: Book) => b.status === 'Want to Read').length > 0 && (
+          <><SectionHeader title="Want to Read" count={books.filter((b: Book) => b.status === 'Want to Read').length} sub /><BookGrid books={books.filter((b: Book) => b.status === 'Want to Read')} onSelect={onSelectBook} /></>
+        )}
+        {books.filter((b: Book) => b.status === 'DNF').length > 0 && (
+          <><SectionHeader title="Did Not Finish" count={books.filter((b: Book) => b.status === 'DNF').length} sub /><BookGrid books={books.filter((b: Book) => b.status === 'DNF')} onSelect={onSelectBook} /></>
+        )}
+        {books.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '80px 0', color: '#6B6B6B' }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>📚</div>
+            <div style={{ fontFamily: "'Newsreader', serif", fontSize: 18 }}>Your archive awaits its first entry</div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─── Library View ─────────────────────────────────────────────────────────────
+function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filterFormat, onFilterFormat,
+  filterRating, onFilterRating, filterStatus, onSelectBook, onAddBook, onExport, onImport, currentlyReading }: any) {
+  const completed  = books.filter((b: Book) => b.status === 'Completed');
+  const wantToRead = books.filter((b: Book) => b.status === 'Want to Read');
+  const dnf        = books.filter((b: Book) => b.status === 'DNF');
+  void filterStatus;
+  const allGenres: Genre[] = ['Fantasy','Romance','Sci-Fi','Fiction','Non-Fiction','Biography','Mystery','Western','War','Young Adult','Thriller','Historical'];
+  const [filterOpen, setFilterOpen] = useState(false);
+  const activeFilterCount = (filterGenre !== 'All' ? 1 : 0) + (filterFormat !== 'All' ? 1 : 0) + (filterRating > 0 ? 1 : 0);
+  function clearFilters() { onFilterGenre('All'); onFilterFormat('All'); onFilterRating(0); }
+
+  return (
+    <>
+      <div style={S.topbar}>
+        <span style={S.pageTitle}>My Library</span>
+        <div style={S.topbarRight}>
+          <div style={{ position: 'relative' }}>
+            <span style={S.searchIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </span>
+            <input style={S.searchInput} placeholder="Search books, authors..." value={search} onChange={e => onSearch(e.target.value)} />
+          </div>
+          <div style={{ position: 'relative' }}>
+            <button onClick={() => setFilterOpen(o => !o)} style={{ ...S.btnGhost, border: activeFilterCount > 0 ? '1px solid rgba(0,98,65,0.4)' : (S.btnGhost as any).border, color: activeFilterCount > 0 ? '#006241' : (S.btnGhost as any).color, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filters
+              {activeFilterCount > 0 && <span style={{ background: '#006241', color: '#fff', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8 }}>{activeFilterCount}</span>}
+            </button>
+            {filterOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setFilterOpen(false)} />
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(45,45,45,0.10)', borderRadius: 12, boxShadow: '0 16px 48px rgba(27,28,25,0.12)', padding: '18px 20px', width: 320 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1, color: '#6B6B6B' }}>Filters</span>
+                    {activeFilterCount > 0 && <span onClick={clearFilters} style={{ fontSize: 11, color: '#006241', cursor: 'pointer' }}>Clear all</span>}
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={S.filterLabel}>Genre</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5 }}>
+                      <FilterChip label="All" active={filterGenre === 'All'} onClick={() => onFilterGenre('All')} />
+                      {allGenres.map(g => <FilterChip key={g} label={g} active={filterGenre === g} onClick={() => onFilterGenre(g)} />)}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={S.filterLabel}>Format</div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+                      {['All','eBook','Audio Book','Print'].map(f => <FilterChip key={f} label={f === 'All' ? 'All Formats' : f} active={filterFormat === f} onClick={() => onFilterFormat(f)} />)}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={S.filterLabel}>Minimum Rating</div>
+                    <div style={{ display: 'flex', gap: 5 }}>
+                      <FilterChip label="Any" active={filterRating === 0} onClick={() => onFilterRating(0)} />
+                      <FilterChip label="★ 3+" active={filterRating === 3} onClick={() => onFilterRating(filterRating === 3 ? 0 : 3)} />
+                      <FilterChip label="★ 4+" active={filterRating === 4} onClick={() => onFilterRating(filterRating === 4 ? 0 : 4)} />
+                      <FilterChip label="★ 5" active={filterRating === 5} onClick={() => onFilterRating(filterRating === 5 ? 0 : 5)} />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <button style={S.btnPrimary} onClick={onAddBook}>+ Add Book</button>
+          <button style={S.btnGhost} onClick={onExport}>Export</button>
+          <button style={S.btnGhost} onClick={onImport}>Import</button>
+        </div>
+      </div>
+
       {activeFilterCount > 0 && (
-        <div style={{ ...S.filterBar, height: 'auto', padding: '8px 32px', gap: 6 }}>
-          <span style={{ fontSize: 11, color: 'rgba(240,234,224,0.35)', marginRight: 4 }}>Active:</span>
+        <div style={{ padding: '8px 32px', display: 'flex', gap: 6, alignItems: 'center', borderBottom: 'none', background: '#F1F1ED' }}>
+          <span style={{ fontSize: 11, color: '#6B6B6B', marginRight: 4 }}>Active:</span>
           {filterGenre !== 'All' && <FilterChip label={filterGenre} active onClick={() => onFilterGenre('All')} />}
           {filterFormat !== 'All' && <FilterChip label={filterFormat} active onClick={() => onFilterFormat('All')} />}
           {filterRating > 0 && <FilterChip label={`★ ${filterRating}+`} active onClick={() => onFilterRating(0)} />}
@@ -306,16 +439,15 @@ function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filt
 
       <div style={S.content}>
         {currentlyReading && (filterStatus === 'All' || filterStatus === 'Reading') && (
-          <NowReadingHero book={currentlyReading} onClick={() => onSelectBook(currentlyReading)} />
+          <CurrentlyImmersedCard book={currentlyReading} onClick={() => {}} />
         )}
-        {reading.length > 0 && filterStatus === 'All' && null}
-        {completed.length > 0  && <><SectionHeader title="Completed"     count={completed.length}  /><BookGrid books={completed}  onSelect={onSelectBook} /></>}
-        {wantToRead.length > 0 && <><SectionHeader title="Want to Read"  count={wantToRead.length} /><BookGrid books={wantToRead} onSelect={onSelectBook} /></>}
-        {dnf.length > 0        && <><SectionHeader title="Did Not Finish" count={dnf.length}        /><BookGrid books={dnf}        onSelect={onSelectBook} /></>}
+        {completed.length > 0  && <><SectionHeader title="Completed"      count={completed.length}  sub /><BookGrid books={completed}  onSelect={onSelectBook} /></>}
+        {wantToRead.length > 0 && <><SectionHeader title="Want to Read"   count={wantToRead.length} sub /><BookGrid books={wantToRead} onSelect={onSelectBook} /></>}
+        {dnf.length > 0        && <><SectionHeader title="Did Not Finish" count={dnf.length}         sub /><BookGrid books={dnf}        onSelect={onSelectBook} /></>}
         {books.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: 'rgba(240,234,224,0.3)' }}>
+          <div style={{ textAlign: 'center', padding: '80px 0', color: '#6B6B6B' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>📚</div>
-            <div>No books found</div>
+            <div style={{ fontFamily: "'Newsreader', serif", fontSize: 18 }}>No books found</div>
           </div>
         )}
       </div>
@@ -323,38 +455,53 @@ function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filt
   );
 }
 
-function NowReadingHero({ book, onClick }: { book: Book; onClick: () => void }) {
+function CurrentlyImmersedCard({ book, onClick }: { book: Book; onClick: () => void }) {
   const [cover, setCover] = useState<string | null>(book.coverUrl || null);
   useEffect(() => {
     if (!cover) {
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
     }
   }, []);
+  const pct = (book.pagesRead && book.pageCount) ? Math.min(100, Math.round((book.pagesRead / book.pageCount) * 100)) : null;
+
   return (
-    <div style={S.nowHero} onClick={onClick}>
-      <div style={S.nowHeroCover}>
-        {cover ? <img src={cover} style={{ width:'100%',height:'100%',objectFit:'cover',display:'block' }} /> : <div style={S.coverPh}>📖</div>}
+    <div
+      onClick={onClick}
+      style={{
+        background: '#FFFFFF', borderRadius: 12, padding: '20px 24px',
+        display: 'flex', gap: 20, alignItems: 'center',
+        boxShadow: '0px 12px 32px rgba(27,28,25,0.06)',
+        cursor: 'pointer', transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0px 16px 40px rgba(27,28,25,0.10)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0px 12px 32px rgba(27,28,25,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+    >
+      <div style={{ width: 68, flexShrink: 0, aspectRatio: '2/3', borderRadius: 8, overflow: 'hidden', boxShadow: '3px 5px 16px rgba(27,28,25,0.18)' }}>
+        {cover
+          ? <img src={cover} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>📖</div>
+        }
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize:9,letterSpacing:2,textTransform:'uppercase',color:'#E8A838',fontWeight:700,marginBottom:5 }}>Now Reading</div>
-        <div style={{ fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700,color:'#F0EAE0',marginBottom:2,lineHeight:1.25 }}>{book.title}</div>
-        <div style={{ fontSize:13,color:'rgba(240,234,224,0.55)',marginBottom:10 }}>{book.author}</div>
-        <div style={{ display:'flex',alignItems:'center',gap:10 }}>
-          <div style={{ flex:1,maxWidth:200,height:4,background:'rgba(255,255,255,0.08)',borderRadius:2,overflow:'hidden' }}>
-            {(() => {
-              const pct = (book.pagesRead && book.pageCount) ? Math.min(100, Math.round((book.pagesRead / book.pageCount) * 100)) : null;
-              return <div style={{ height:'100%', width: pct !== null ? `${pct}%` : '0%', background:'linear-gradient(90deg,#B07820,#E8A838)', borderRadius:2 }} />;
-            })()}
+        <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase' as const, color: '#006241', fontWeight: 700, marginBottom: 5 }}>Currently Immersed</div>
+        <div style={{ fontFamily: "'Newsreader', serif", fontSize: 18, fontWeight: 600, color: '#2D2D2D', marginBottom: 2, lineHeight: 1.25 }}>{book.title}</div>
+        <div style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 12 }}>{book.author}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ flex: 1, maxWidth: 220, height: 5, background: '#F1F1ED', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: pct !== null ? `${pct}%` : '0%', background: 'linear-gradient(90deg, #067D55, #006241)', borderRadius: 3, transition: 'width 0.4s ease' }} />
           </div>
-          <span style={{ fontSize:11,color:'rgba(240,234,224,0.4)' }}>
-            {(book.pagesRead && book.pageCount) ? `${Math.min(100, Math.round((book.pagesRead / book.pageCount) * 100))}%` : 'In progress'}
+          <span style={{ fontSize: 12, color: '#6B6B6B', fontWeight: 500 }}>
+            {pct !== null ? `${pct}%` : 'In progress'}
           </span>
         </div>
       </div>
-      <div style={{ display:'flex',gap:6,alignItems:'center',flexShrink:0 }}>
-        {book.genres.slice(0,2).map(g => <GenreTag key={g} genre={g} />)}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+        {book.genres.slice(0, 2).map(g => <GenreTag key={g} genre={g} />)}
         {book.rating ? <StarRating rating={book.rating} /> : null}
       </div>
+      <button style={{ ...S.btnPrimary, flexShrink: 0, fontSize: 12, padding: '7px 14px' }}>
+        Continue Reading
+      </button>
     </div>
   );
 }
@@ -363,30 +510,115 @@ function BookGrid({ books, onSelect }: { books: Book[]; onSelect: (b: Book) => v
   return <div style={S.bookGrid}>{books.map(b => <BookCard key={b.id} book={b} onClick={() => onSelect(b)} />)}</div>;
 }
 
-function SectionHeader({ title, count }: { title: string; count?: number }) {
+function SectionHeader({ title, count, sub }: { title: string; count?: number; sub?: boolean }) {
   return (
-    <div style={{ display:'flex',alignItems:'baseline',gap:10,marginBottom:16 }}>
-      <span style={{ fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:700,color:'#F0EAE0' }}>{title}</span>
-      {count !== undefined && <span style={{ fontSize:12,color:'rgba(240,234,224,0.45)' }}>{count} books</span>}
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: sub ? 14 : 20, marginTop: sub ? 28 : 0 }}>
+      <span style={{ fontFamily: "'Newsreader', serif", fontSize: sub ? 15 : 18, fontWeight: 600, color: '#2D2D2D', fontStyle: sub ? 'normal' : 'italic' as const }}>{title}</span>
+      {count !== undefined && <span style={{ fontSize: 12, color: '#6B6B6B' }}>{count} books</span>}
     </div>
   );
 }
 
 // ─── Shared Styles ────────────────────────────────────────────────────────────
 export const S = {
-  topbar: { background:'linear-gradient(180deg,#17141E 0%,#141218 100%)', borderBottom:'1px solid rgba(255,255,255,0.06)', padding:'0 32px', display:'flex' as const, alignItems:'center' as const, height:66, gap:14, flexShrink:0 },
-  pageTitle: { fontFamily:"'Playfair Display',serif", fontSize:21, fontWeight:700, color:'#F0EAE0' },
-  topbarRight: { marginLeft:'auto', display:'flex' as const, gap:10, alignItems:'center' as const },
-  searchIcon: { position:'absolute' as const, left:11, top:'50%', transform:'translateY(-50%)', fontSize:13, pointerEvents:'none' as const, opacity:0.35 },
-  searchInput: { background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.09)', borderRadius:8, padding:'7px 12px 7px 34px', fontSize:13, fontFamily:"'DM Sans',sans-serif", color:'#F0EAE0', width:215, outline:'none' },
-  btnPrimary: { padding:'8px 18px', borderRadius:8, fontSize:13, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', border:'1px solid rgba(255,200,80,0.5)', fontWeight:600, background:'linear-gradient(160deg,#F2BC45 0%,#CC8E1E 100%)', color:'#0D0C0F', boxShadow:'0 2px 0 rgba(0,0,0,0.3),0 4px 14px rgba(232,168,56,0.4)' },
-  btnGhost: { padding:'8px 16px', borderRadius:8, fontSize:13, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', border:'1px solid rgba(240,234,224,0.18)', fontWeight:500, background:'rgba(240,234,224,0.07)', color:'rgba(240,234,224,0.75)' },
-  filterBar: { padding:'0 32px', display:'flex' as const, gap:6, alignItems:'center' as const, background:'linear-gradient(180deg,#151319 0%,#121018 100%)', borderBottom:'1px solid rgba(255,255,255,0.05)', height:46, flexShrink:0, overflowX:'auto' as const },
-  filterSep: { width:1, height:18, background:'rgba(255,255,255,0.10)', margin:'0 4px', flexShrink:0 },
-  filterLabel: { fontSize:10, fontWeight:700, textTransform:'uppercase' as const, letterSpacing:'0.8px', color:'rgba(240,234,224,0.35)', marginBottom:8 },
-  content: { padding:'28px 32px', flex:1, overflowY:'auto' as const },
-  bookGrid: { display:'grid' as const, gridTemplateColumns:'repeat(auto-fill,minmax(148px,1fr))', gap:16, marginBottom:36 },
-  nowHero: { background:'linear-gradient(135deg,#1C1921 0%,#17141E 100%)', border:'1px solid rgba(232,168,56,0.22)', borderRadius:10, padding:'18px 22px', display:'flex' as const, gap:20, alignItems:'center' as const, marginBottom:32, cursor:'pointer', boxShadow:'0 0 0 1px rgba(232,168,56,0.08),0 8px 32px rgba(0,0,0,0.35)' },
-  nowHeroCover: { width:62, flexShrink:0, aspectRatio:'2/3' as const, borderRadius:6, overflow:'hidden', boxShadow:'3px 5px 18px rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.10)' },
-  coverPh: { width:'100%', height:'100%', background:'linear-gradient(160deg,#302B3E,#1C1921)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, opacity:0.5 },
+  topbar: {
+    background: '#FAF9F4',
+    borderBottom: '1px solid rgba(45,45,45,0.08)',
+    padding: '0 32px',
+    display: 'flex' as const,
+    alignItems: 'center' as const,
+    height: 66,
+    gap: 14,
+    flexShrink: 0,
+  },
+  pageTitle: {
+    fontFamily: "'Newsreader', serif",
+    fontStyle: 'italic' as const,
+    fontSize: 22,
+    fontWeight: 600,
+    color: '#2D2D2D',
+  },
+  topbarRight: {
+    marginLeft: 'auto',
+    display: 'flex' as const,
+    gap: 10,
+    alignItems: 'center' as const,
+  },
+  searchIcon: {
+    position: 'absolute' as const,
+    left: 11,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none' as const,
+    color: '#6B6B6B',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  searchInput: {
+    background: '#F1F1ED',
+    border: '1.5px solid transparent',
+    borderRadius: 8,
+    padding: '7px 12px 7px 34px',
+    fontSize: 13,
+    fontFamily: "'Manrope', sans-serif",
+    color: '#2D2D2D',
+    width: 220,
+    outline: 'none',
+    transition: 'border-color 0.15s ease',
+  },
+  btnPrimary: {
+    padding: '8px 18px',
+    borderRadius: 8,
+    fontSize: 13,
+    fontFamily: "'Manrope', sans-serif",
+    cursor: 'pointer',
+    border: 'none',
+    fontWeight: 600,
+    background: 'linear-gradient(160deg, #067D55 0%, #006241 100%)',
+    color: '#FFFFFF',
+    boxShadow: '0 2px 8px rgba(0,98,65,0.25)',
+    transition: 'box-shadow 0.15s ease, transform 0.15s ease',
+  },
+  btnGhost: {
+    padding: '8px 16px',
+    borderRadius: 8,
+    fontSize: 13,
+    fontFamily: "'Manrope', sans-serif",
+    cursor: 'pointer',
+    border: '1px solid rgba(45,45,45,0.18)',
+    fontWeight: 500,
+    background: 'transparent',
+    color: '#4B4B4B',
+    transition: 'background 0.15s ease',
+  },
+  filterBar: {
+    padding: '0 32px',
+    display: 'flex' as const,
+    gap: 6,
+    alignItems: 'center' as const,
+    background: '#F1F1ED',
+    height: 46,
+    flexShrink: 0,
+    overflowX: 'auto' as const,
+  },
+  filterLabel: {
+    fontSize: 10,
+    fontWeight: 700,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.8px',
+    color: '#6B6B6B',
+    marginBottom: 8,
+  },
+  content: {
+    padding: '28px 32px',
+    flex: 1,
+    overflowY: 'auto' as const,
+    background: '#FAF9F4',
+  },
+  bookGrid: {
+    display: 'grid' as const,
+    gridTemplateColumns: 'repeat(auto-fill,minmax(148px,1fr))',
+    gap: 16,
+    marginBottom: 36,
+  },
 };

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,9 +12,10 @@ html, body, #root {
   margin: 0;
   padding: 0;
   height: 100%;
-  background: #0D0C0F;
-  font-family: 'DM Sans', sans-serif;
+  background: #FAF9F4;
+  font-family: 'Manrope', sans-serif;
   -webkit-font-smoothing: antialiased;
+  color: #2D2D2D;
 }
 
 /* Scrollbar styling */
@@ -22,19 +23,14 @@ html, body, #root {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.03);
+  background: #F1F1ED;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.12);
+  background: rgba(45,45,45,0.18);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.22);
-}
-
-/* Date input color fix for dark theme */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
+  background: rgba(45,45,45,0.32);
 }
 
 /* Remove number input arrows */

@@ -1,13 +1,26 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
+      fontFamily: {
+        newsreader: ['Newsreader', 'Georgia', 'serif'],
+        manrope: ['Manrope', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        // Editorial Archivist design tokens
+        parchment: '#FAF9F4',
+        stone: '#F1F1ED',
+        emerald: {
+          primary: '#006241',
+          dark: '#067D55',
+          light: 'rgba(6,98,65,0.08)',
+        },
+        charcoal: '#2D2D2D',
+        'text-muted': '#6B6B6B',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
