@@ -24,17 +24,36 @@ const DEFAULT_PALETTE = { bg: 'linear-gradient(160deg,#F1F1ED 0%,#E8E8E0 100%)',
 export default function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
   const [cover, setCover] = useState<string | null>(book.coverUrl || null);
   const [coverError, setCoverError] = useState(false);
+  const [fetchedFallback, setFetchedFallback] = useState(false);
   const [hover, setHover] = useState(false);
   const palette = GENRE_PALETTE[book.genres[0]] || DEFAULT_PALETTE;
 
   useEffect(() => {
     setCoverError(false);
+    setFetchedFallback(false);
     if (!book.coverUrl) {
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
     } else {
       setCover(book.coverUrl);
     }
   }, [book.id]);
+
+  // When the stored URL 404s, try fetching a fresh one from the API
+  function handleCoverError() {
+    if (!fetchedFallback) {
+      setFetchedFallback(true);
+      fetchCoverUrl(book.title, book.author).then(url => {
+        if (url && url !== cover) {
+          setCover(url);
+          setCoverError(false);
+        } else {
+          setCoverError(true);
+        }
+      });
+    } else {
+      setCoverError(true);
+    }
+  }
 
   const statusDot = {
     Completed:      '#067D55',
@@ -66,7 +85,7 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
       <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative' }}>
         {cover && !coverError ? (
           <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            onError={() => setCoverError(true)} />
+            onError={handleCoverError} />
         ) : (
           <div style={{
             width: '100%', height: '100%',

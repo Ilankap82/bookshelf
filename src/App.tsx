@@ -199,6 +199,7 @@ export default function App() {
             onExport={exportData}
             onImport={() => fileInputRef.current?.click()}
             currentlyReading={currentlyReading[0] || null}
+            user={user}
           />
         )}
         {view === 'discovery' && <RecommendationsView recommendations={RECOMMENDATIONS} books={books} onAddToList={addToWantToRead} />}
@@ -351,6 +352,41 @@ function getGreeting(): string {
   return 'Good Evening';
 }
 
+// ─── Glassmorphic User Cluster ───────────────────────────────────────────────
+function UserCluster({ user }: { user: UserProfile }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      background: 'rgba(250,249,244,0.70)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.55)',
+      borderRadius: 20,
+      padding: '5px 12px 5px 7px',
+      boxShadow: '0 2px 12px rgba(27,28,25,0.07)',
+      flexShrink: 0,
+    }}>
+      {/* Avatar */}
+      <div style={{
+        width: 28, height: 28, borderRadius: '50%',
+        background: user.color,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 11, fontWeight: 700, color: '#FFFFFF',
+        fontFamily: "'Manrope', sans-serif",
+        flexShrink: 0,
+      }}>
+        {user.initials}
+      </div>
+      {/* Name */}
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#2D2D2D', whiteSpace: 'nowrap' as const }}>
+        {user.name.split(' ')[0]}
+      </span>
+      {/* Tertiary notification dot */}
+      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#067D55', flexShrink: 0 }} />
+    </div>
+  );
+}
+
 // ─── Home View ────────────────────────────────────────────────────────────────
 function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFilterGenre,
   filterFormat, onFilterFormat, filterRating, onFilterRating, onSelectBook,
@@ -362,18 +398,26 @@ function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFi
 
   return (
     <>
-      {/* Top bar */}
+      {/* Top bar — No-Line Rule: tonal background shift, no border */}
       <div style={S.topbar}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={S.pageTitle}>{getGreeting()}{user?.name && user.name !== 'Reader' ? `, ${user.name.split(' ')[0]}` : ''}</span>
+        {/* display-lg greeting per spec */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const }}>
+          <span style={{ fontFamily: "'Newsreader', serif", fontStyle: 'italic' as const, fontSize: 26, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.15 }}>
+            {getGreeting()}{user?.name && user.name !== 'Reader' ? `, ${user.name.split(' ')[0]}` : ''}
+          </span>
+          <span style={{ fontSize: 12, color: '#8A8A82', marginTop: 2 }}>
+            {books.length} books in your archive
+          </span>
         </div>
         <div style={S.topbarRight}>
+          {/* Pill search */}
           <div style={{ position: 'relative' }}>
             <span style={S.searchIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             </span>
             <input style={S.searchInput} placeholder="Search books, authors..." value={search} onChange={e => onSearch(e.target.value)} />
           </div>
+          {/* Filters */}
           <div style={{ position: 'relative' }}>
             <button onClick={() => setFilterOpen(o => !o)} style={{ ...S.btnGhost, border: activeFilterCount > 0 ? '1px solid rgba(0,98,65,0.4)' : (S.btnGhost as any).border, color: activeFilterCount > 0 ? '#006241' : (S.btnGhost as any).color, display: 'flex', alignItems: 'center', gap: 6 }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
@@ -383,7 +427,7 @@ function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFi
             {filterOpen && (
               <>
                 <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setFilterOpen(false)} />
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(45,45,45,0.10)', borderRadius: 12, boxShadow: '0 16px 48px rgba(27,28,25,0.12)', padding: '18px 20px', width: 320 }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: '#FFFFFF', borderRadius: 12, boxShadow: '0 16px 48px rgba(27,28,25,0.14)', padding: '18px 20px', width: 320 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1, color: '#6B6B6B' }}>Filters</span>
                     {activeFilterCount > 0 && <span onClick={clearFilters} style={{ fontSize: 11, color: '#006241', cursor: 'pointer' }}>Clear all</span>}
@@ -417,6 +461,8 @@ function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFi
           <button style={S.btnPrimary} onClick={onAddBook}>+ Add Book</button>
           <button style={S.btnGhost} onClick={onExport}>Export</button>
           <button style={S.btnGhost} onClick={onImport}>Import</button>
+          {/* Glassmorphic user cluster */}
+          <UserCluster user={user} />
         </div>
       </div>
 
@@ -443,6 +489,9 @@ function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFi
             {filterRating > 0 && <FilterChip label={`★ ${filterRating}+`} active onClick={() => onFilterRating(0)} />}
           </div>
         )}
+        {books.filter((b: Book) => b.status === 'Reading').length > 0 && (
+          <><SectionHeader title="Currently Reading" count={books.filter((b: Book) => b.status === 'Reading').length} sub /><BookGrid books={books.filter((b: Book) => b.status === 'Reading')} onSelect={onSelectBook} /></>
+        )}
         {books.filter((b: Book) => b.status === 'Completed').length > 0 && (
           <><SectionHeader title="Completed" count={books.filter((b: Book) => b.status === 'Completed').length} sub /><BookGrid books={books.filter((b: Book) => b.status === 'Completed')} onSelect={onSelectBook} /></>
         )}
@@ -465,7 +514,7 @@ function HomeView({ books, currentlyReading, search, onSearch, filterGenre, onFi
 
 // ─── Library View ─────────────────────────────────────────────────────────────
 function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filterFormat, onFilterFormat,
-  filterRating, onFilterRating, filterStatus, onSelectBook, onAddBook, onExport, onImport, currentlyReading }: any) {
+  filterRating, onFilterRating, filterStatus, onSelectBook, onAddBook, onExport, onImport, currentlyReading, user }: any) {
   const completed  = books.filter((b: Book) => b.status === 'Completed');
   const wantToRead = books.filter((b: Book) => b.status === 'Want to Read');
   const dnf        = books.filter((b: Book) => b.status === 'DNF');
@@ -482,7 +531,7 @@ function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filt
         <div style={S.topbarRight}>
           <div style={{ position: 'relative' }}>
             <span style={S.searchIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             </span>
             <input style={S.searchInput} placeholder="Search books, authors..." value={search} onChange={e => onSearch(e.target.value)} />
           </div>
@@ -495,7 +544,7 @@ function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filt
             {filterOpen && (
               <>
                 <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setFilterOpen(false)} />
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(45,45,45,0.10)', borderRadius: 12, boxShadow: '0 16px 48px rgba(27,28,25,0.12)', padding: '18px 20px', width: 320 }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: '#FFFFFF', borderRadius: 12, boxShadow: '0 16px 48px rgba(27,28,25,0.14)', padding: '18px 20px', width: 320 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1, color: '#6B6B6B' }}>Filters</span>
                     {activeFilterCount > 0 && <span onClick={clearFilters} style={{ fontSize: 11, color: '#006241', cursor: 'pointer' }}>Clear all</span>}
@@ -529,6 +578,7 @@ function LibraryView({ books, search, onSearch, filterGenre, onFilterGenre, filt
           <button style={S.btnPrimary} onClick={onAddBook}>+ Add Book</button>
           <button style={S.btnGhost} onClick={onExport}>Export</button>
           <button style={S.btnGhost} onClick={onImport}>Import</button>
+          {user && <UserCluster user={user} />}
         </div>
       </div>
 
@@ -626,19 +676,19 @@ function SectionHeader({ title, count, sub }: { title: string; count?: number; s
 // ─── Shared Styles ────────────────────────────────────────────────────────────
 export const S = {
   topbar: {
-    background: '#FAF9F4',
-    borderBottom: '1px solid rgba(45,45,45,0.08)',
-    padding: '0 32px',
+    // No-Line Rule: no 1px border — use background tonal shift for separation
+    background: '#F1F1ED',
+    padding: '0 28px',
     display: 'flex' as const,
     alignItems: 'center' as const,
-    height: 66,
-    gap: 14,
+    height: 62,
+    gap: 12,
     flexShrink: 0,
   },
   pageTitle: {
     fontFamily: "'Newsreader', serif",
     fontStyle: 'italic' as const,
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 600,
     color: '#2D2D2D',
   },
@@ -650,25 +700,26 @@ export const S = {
   },
   searchIcon: {
     position: 'absolute' as const,
-    left: 11,
+    left: 12,
     top: '50%',
     transform: 'translateY(-50%)',
     pointerEvents: 'none' as const,
-    color: '#6B6B6B',
+    color: '#8A8A82',
     display: 'flex',
     alignItems: 'center',
   },
+  // Pill-shaped search per spec
   searchInput: {
-    background: '#F1F1ED',
-    border: '1.5px solid transparent',
-    borderRadius: 8,
-    padding: '7px 12px 7px 34px',
+    background: '#FAF9F4',
+    border: '1px solid rgba(45,45,45,0.12)',
+    borderRadius: 20,
+    padding: '7px 14px 7px 35px',
     fontSize: 13,
     fontFamily: "'Manrope', sans-serif",
     color: '#2D2D2D',
-    width: 220,
+    width: 210,
     outline: 'none',
-    transition: 'border-color 0.15s ease',
+    transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
   },
   btnPrimary: {
     padding: '8px 18px',
@@ -689,9 +740,9 @@ export const S = {
     fontSize: 13,
     fontFamily: "'Manrope', sans-serif",
     cursor: 'pointer',
-    border: '1px solid rgba(45,45,45,0.18)',
+    border: '1px solid rgba(45,45,45,0.15)',
     fontWeight: 500,
-    background: 'transparent',
+    background: 'rgba(255,255,255,0.6)',
     color: '#4B4B4B',
     transition: 'background 0.15s ease',
   },

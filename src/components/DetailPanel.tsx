@@ -8,16 +8,34 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
 }) {
   const [cover, setCover] = useState<string | null>(book.coverUrl || null);
   const [coverError, setCoverError] = useState(false);
+  const [fetchedFallback, setFetchedFallback] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     setCover(book.coverUrl || null);
     setCoverError(false);
+    setFetchedFallback(false);
     setConfirmDelete(false);
     if (!book.coverUrl) {
       fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
     }
   }, [book.id]);
+
+  function handleCoverError() {
+    if (!fetchedFallback) {
+      setFetchedFallback(true);
+      fetchCoverUrl(book.title, book.author).then(url => {
+        if (url && url !== cover) {
+          setCover(url);
+          setCoverError(false);
+        } else {
+          setCoverError(true);
+        }
+      });
+    } else {
+      setCoverError(true);
+    }
+  }
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -73,7 +91,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           <div style={{ width: '42%', flexShrink: 0, paddingRight: 22 }}>
             <div style={{ aspectRatio: '2/3', borderRadius: 10, overflow: 'hidden', boxShadow: '0px 12px 32px rgba(27,28,25,0.14)', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)' }}>
               {cover && !coverError
-                ? <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={() => setCoverError(true)} />
+                ? <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={handleCoverError} />
                 : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.5 }}>📖</div>
               }
             </div>
