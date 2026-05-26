@@ -1,6 +1,17 @@
+export const SCHEMA_VERSION = 2 as const;
+
 export type Status = 'Completed' | 'Reading' | 'Want to Read' | 'DNF';
 export type Format = 'eBook' | 'Audio Book' | 'Print' | 'Book & Audio';
 export type SeriesType = 'Standalone' | 'Series' | 'Trilogy' | 'Duology' | 'Saga';
+export type MetadataStatus = 'manual' | 'pending' | 'found' | 'not-found' | 'error';
+export type MetadataSourceName = 'manual' | 'openLibrary' | 'googleBooks';
+export interface SourceIds {
+  openLibrary?: string;
+  googleBooks?: string;
+  isbn10?: string;
+  isbn13?: string;
+}
+
 export type Genre =
   | 'Fantasy' | 'Romance' | 'Sci-Fi' | 'Fiction' | 'Non-Fiction'
   | 'Biography' | 'Mystery' | 'Western' | 'War' | 'Young Adult'
@@ -23,10 +34,15 @@ export interface Book {
   seriesPosition?: number;
   notes?: string;
   coverUrl?: string; // cached Open Library cover
+  coverCandidates?: string[];
+  metadataStatus?: MetadataStatus;
+  metadataSources?: MetadataSourceName[];
+  sourceIds?: SourceIds;
   pagesRead?: number; // for in-progress reading tracking
 }
 
 export interface AppData {
+  schemaVersion?: typeof SCHEMA_VERSION;
   books: Book[];
   lastExported?: string;
 }
