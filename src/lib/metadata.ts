@@ -1,0 +1,314 @@
+import type { Book, MetadataSourceName, SourceIds } from '../types';
+
+export interface MetadataSearchQuery {
+  title: string;
+  author?: string;
+  isbn?: string;
+}
+
+export type MetadataSearchSourceName = 'open-library' | 'google-books';
+
+export interface MetadataSearchResult {
+  sourceName: MetadataSearchSourceName;
+  sourceId: string;
+  title: string;
+  author: string;
+  year?: number;
+  publisher?: string;
+  pageCount?: number;
+  language?: string;
+  isbn10: string[];
+  isbn13: string[];
+  coverCandidates: string[];
+}
+
+export interface MetadataSearchResponse {
+  results: MetadataSearchResult[];
+  errors: string[];
+}
+
+export type DraftBookFromMetadata = Omit<Book, 'metadataStatus'> & {
+  metadataStatus: 'candidate';
+};
+
+interface OpenLibraryDoc {
+  key?: string;
+  title?: string;
+  author_name?: string[];
+  first_publish_year?: number;
+  publisher?: string[];
+  isbn?: string[];
+  language?: string[];
+  cover_i?: number;
+  number_of_pages_median?: number;
+}
+
+interface OpenLibrarySearchResponse {
+  docs?: OpenLibraryDoc[];
+}
+
+interface GoogleBooksIndustryIdentifier {
+  type?: string;
+  identifier?: string;
+}
+
+interface GoogleBooksVolumeInfo {
+  title?: string;
+  authors?: string[];
+  publishedDate?: string;
+  publisher?: string;
+  pageCount?: number;
+  language?: string;
+  industryIdentifiers?: GoogleBooksIndustryIdentifier[];
+  imageLinks?: Record<string, string | undefined>;
+}
+
+interface GoogleBooksItem {
+  id?: string;
+  volumeInfo?: GoogleBooksVolumeInfo;
+}
+
+interface GoogleBooksSearchResponse {
+  items?: GoogleBooksItem[];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parseOpenLibraryResponse(value: unknown): OpenLibrarySearchResponse {
+  if (!isRecord(value) || !Array.isArray(value.docs)) return {};
+
+  return { docs: value.docs.filter(isRecord) as OpenLibraryDoc[] };
+}
+
+function parseGoogleBooksResponse(value: unknown): GoogleBooksSearchResponse {
+  if (!isRecord(value) || !Array.isArray(value.items)) return {};
+
+  return { items: value.items.filter(isRecord) as GoogleBooksItem[] };
+}
+
+function isbnBuckets(isbns: readonly string[] | undefined): Pick<MetadataSearchResult, 'isbn10' | 'isbn13'> {
+  const values = isbns ?? [];
+
+  return {
+    isbn10: values.filter((isbn) => isbn.length === 10),
+    isbn13: values.filter((isbn) => isbn.length === 13),
+  };
+}
+
+function parseYear(value: string | undefined): number | undefined {
+  const match = value?.match(/^\d{4}/);
+  return match ? Number(match[0]) : undefined;
+}
+
+function toHttps(url: string): string {
+  return url.startsWith('http://') ? `https://${url.slice('http://'.length)}` : url;
+}
+
+function metadataSourceName(sourceName: MetadataSearchSourceName): MetadataSourceName {
+  return sourceName === 'open-library' ? 'openLibrary' : 'googleBooks';
+}
+
+function sourceIdsFromResult(result: MetadataSearchResult): SourceIds {
+  const ids: SourceIds = {};
+
+  if (result.sourceName === 'open-library') ids.openLibrary = result.sourceId;
+  if (result.sourceName === 'google-books') ids.googleBooks = result.sourceId;
+  if (result.isbn10[0] !== undefined) ids.isbn10 = result.isbn10[0];
+  if (result.isbn13[0] !== undefined) ids.isbn13 = result.isbn13[0];
+
+  return ids;
+}
+
+function openLibrarySourceId(key: string | undefined): string {
+  return key?.split('/').filter(Boolean).at(-1) ?? '';
+}
+
+function openLibraryCoverCandidates(
+  coverId: number | undefined,
+  isbn10: readonly string[],
+  isbn13: readonly string[],
+): string[] {
+  const candidates: string[] = [];
+
+  if (coverId !== undefined) {
+    candidates.push(`https://covers.openlibrary.org/b/id/${coverId}-L.jpg`);
+  }
+
+  for (const isbn of [...isbn13, ...isbn10]) {
+    candidates.push(`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`);
+  }
+
+  return Array.from(new Set(candidates));
+}
+
+function googleCoverCandidates(imageLinks: Record<string, string | undefined> | undefined): string[] {
+  if (imageLinks === undefined) return [];
+
+  return Array.from(
+    new Set(
+      Object.values(imageLinks)
+        .filter((url): url is string => url !== undefined)
+        .map(toHttps),
+    ),
+  );
+}
+
+function openLibraryUrl(query: MetadataSearchQuery): string {
+  const params = new URLSearchParams({
+    limit: '10',
+    fields: [
+      'key',
+      'title',
+      'author_name',
+      'first_publish_year',
+      'publisher',
+      'isbn',
+      'language',
+      'cover_i',
+      'number_of_pages_median',
+    ].join(','),
+  });
+
+  if (query.isbn !== undefined) params.set('isbn', query.isbn);
+  if (query.title !== '') params.set('title', query.title);
+  if (query.author !== undefined && query.author !== '') params.set('author', query.author);
+
+  return `https://openlibrary.org/search.json?${params.toString()}`;
+}
+
+function googleBooksUrl(query: MetadataSearchQuery): string {
+  const terms: string[] = [];
+
+  if (query.isbn !== undefined && query.isbn !== '') terms.push(`isbn:${query.isbn}`);
+  if (query.title !== '') terms.push(`intitle:${query.title}`);
+  if (query.author !== undefined && query.author !== '') terms.push(`inauthor:${query.author}`);
+
+  const params = new URLSearchParams({
+    maxResults: '10',
+    q: terms.join(' '),
+  });
+
+  return `https://www.googleapis.com/books/v1/volumes?${params.toString()}`;
+}
+
+export function normalizeOpenLibraryDocs(docs: readonly OpenLibraryDoc[]): MetadataSearchResult[] {
+  return docs
+    .filter((doc) => doc.title !== undefined || doc.key !== undefined)
+    .map((doc) => {
+      const { isbn10, isbn13 } = isbnBuckets(doc.isbn);
+
+      return {
+        sourceName: 'open-library',
+        sourceId: openLibrarySourceId(doc.key),
+        title: doc.title ?? '',
+        author: doc.author_name?.[0] ?? '',
+        year: doc.first_publish_year,
+        publisher: doc.publisher?.[0],
+        pageCount: doc.number_of_pages_median,
+        language: doc.language?.[0],
+        isbn10,
+        isbn13,
+        coverCandidates: openLibraryCoverCandidates(doc.cover_i, isbn10, isbn13),
+      };
+    });
+}
+
+export function normalizeGoogleBooksItems(items: readonly GoogleBooksItem[]): MetadataSearchResult[] {
+  return items
+    .filter((item) => item.id !== undefined || item.volumeInfo?.title !== undefined)
+    .map((item) => {
+      const volumeInfo = item.volumeInfo;
+      const isbn10 = volumeInfo?.industryIdentifiers
+        ?.filter((identifier) => identifier.type === 'ISBN_10' && identifier.identifier !== undefined)
+        .map((identifier) => identifier.identifier as string) ?? [];
+      const isbn13 = volumeInfo?.industryIdentifiers
+        ?.filter((identifier) => identifier.type === 'ISBN_13' && identifier.identifier !== undefined)
+        .map((identifier) => identifier.identifier as string) ?? [];
+
+      return {
+        sourceName: 'google-books',
+        sourceId: item.id ?? '',
+        title: volumeInfo?.title ?? '',
+        author: volumeInfo?.authors?.[0] ?? '',
+        year: parseYear(volumeInfo?.publishedDate),
+        publisher: volumeInfo?.publisher,
+        pageCount: volumeInfo?.pageCount,
+        language: volumeInfo?.language,
+        isbn10,
+        isbn13,
+        coverCandidates: googleCoverCandidates(volumeInfo?.imageLinks),
+      };
+    });
+}
+
+export async function searchBookMetadata(
+  query: MetadataSearchQuery,
+  fetcher: typeof fetch = fetch,
+): Promise<MetadataSearchResponse> {
+  const errors: string[] = [];
+  const results: MetadataSearchResult[] = [];
+
+  try {
+    const response = await fetcher(openLibraryUrl(query));
+    if (!response.ok) throw new Error('Open Library search failed.');
+
+    const data = parseOpenLibraryResponse(await response.json());
+    results.push(...normalizeOpenLibraryDocs(data.docs ?? []));
+  } catch {
+    errors.push('Open Library search failed.');
+  }
+
+  try {
+    const response = await fetcher(googleBooksUrl(query));
+    if (!response.ok) throw new Error('Google Books search failed.');
+
+    const data = parseGoogleBooksResponse(await response.json());
+    results.push(...normalizeGoogleBooksItems(data.items ?? []));
+  } catch {
+    errors.push('Google Books search failed.');
+  }
+
+  return { results, errors };
+}
+
+export function createDraftBookFromResult(
+  result: MetadataSearchResult,
+  id: string = crypto.randomUUID(),
+): DraftBookFromMetadata {
+  const coverUrl = result.coverCandidates[0];
+  const draft: DraftBookFromMetadata = {
+    id,
+    title: result.title,
+    author: result.author,
+    status: 'Want to Read',
+    genres: [],
+    tropes: [],
+    metadataStatus: 'candidate',
+    metadataSources: [metadataSourceName(result.sourceName)],
+    sourceIds: sourceIdsFromResult(result),
+  };
+
+  if (result.pageCount !== undefined) draft.pageCount = result.pageCount;
+  if (coverUrl !== undefined) draft.coverUrl = coverUrl;
+  if (result.coverCandidates.length > 0) draft.coverCandidates = result.coverCandidates;
+
+  return draft;
+}
+
+export function createManualDraftBook(
+  title: string,
+  author: string,
+  id: string = crypto.randomUUID(),
+): Book {
+  return {
+    id,
+    title,
+    author,
+    status: 'Want to Read',
+    genres: [],
+    tropes: [],
+    metadataStatus: 'manual',
+  };
+}
