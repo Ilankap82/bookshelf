@@ -97,6 +97,50 @@ describe('storage', () => {
     });
   });
 
+  it('migrates temporary metadata source names to current source names', () => {
+    const migrated = migrateAppData({
+      books: [
+        {
+          title: 'Open Library Book',
+          metadataSources: ['openLibrary', 'manual'],
+        },
+        {
+          title: 'Google Books Book',
+          metadataSources: ['googleBooks'],
+        },
+      ],
+    });
+
+    expect(migrated.books[0].metadataSources).toEqual(['open-library', 'manual']);
+    expect(migrated.books[1].metadataSources).toEqual(['google-books']);
+  });
+
+  it('migrates temporary metadata statuses conservatively', () => {
+    const migrated = migrateAppData({
+      books: [
+        { title: 'Found', metadataStatus: 'found' },
+        { title: 'Pending', metadataStatus: 'pending' },
+        { title: 'Not Found', metadataStatus: 'not-found' },
+        { title: 'Error', metadataStatus: 'error' },
+        { title: 'Candidate', metadataStatus: 'candidate' },
+        { title: 'Reviewed', metadataStatus: 'reviewed' },
+        { title: 'Unknown', metadataStatus: 'unexpected' },
+        { title: 'Missing' },
+      ],
+    });
+
+    expect(migrated.books.map((book) => book.metadataStatus)).toEqual([
+      'reviewed',
+      'manual',
+      'manual',
+      'manual',
+      'candidate',
+      'reviewed',
+      'manual',
+      'manual',
+    ]);
+  });
+
   it('rejects JSON without a books array', () => {
     expect(() => parseImportedData('{"items":[]}')).toThrow(
       'Import file must contain a books array.',

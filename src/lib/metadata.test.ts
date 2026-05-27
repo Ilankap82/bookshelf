@@ -45,6 +45,44 @@ describe('metadata', () => {
     ]);
   });
 
+  it('keeps valid Open Library docs when another doc has malformed nested fields', () => {
+    const results = normalizeOpenLibraryDocs([
+      {
+        key: '/works/OLBADW',
+        title: 'Malformed Open Library Book',
+        author_name: 'not-an-array' as never,
+        publisher: 'not-an-array' as never,
+        isbn: 'bad' as never,
+        language: 'not-an-array' as never,
+      },
+      {
+        key: '/works/OL45804W',
+        title: 'The Left Hand of Darkness',
+        author_name: ['Ursula K. Le Guin'],
+        isbn: ['0441478123', '9780441478125'],
+      },
+    ]);
+
+    expect(results).toMatchObject([
+      {
+        sourceName: 'open-library',
+        sourceId: 'OLBADW',
+        title: 'Malformed Open Library Book',
+        author: '',
+        isbn10: [],
+        isbn13: [],
+      },
+      {
+        sourceName: 'open-library',
+        sourceId: 'OL45804W',
+        title: 'The Left Hand of Darkness',
+        author: 'Ursula K. Le Guin',
+        isbn10: ['0441478123'],
+        isbn13: ['9780441478125'],
+      },
+    ]);
+  });
+
   it('normalizes Google Books items into app-level metadata results', () => {
     const results = normalizeGoogleBooksItems([
       {
@@ -84,6 +122,51 @@ describe('metadata', () => {
           'https://books.google.com/books/content?id=abc&printsec=frontcover&img=1',
           'https://books.google.com/books/content?id=abc&printsec=frontcover&img=2',
         ],
+      },
+    ]);
+  });
+
+  it('keeps valid Google Books items when another item has malformed nested fields', () => {
+    const results = normalizeGoogleBooksItems([
+      {
+        id: 'google-volume-bad',
+        volumeInfo: {
+          title: 'Malformed Google Book',
+          authors: 'not-an-array' as never,
+          industryIdentifiers: 'not-an-array' as never,
+          imageLinks: 'not-a-record' as never,
+        },
+      },
+      {
+        id: 'google-volume-1',
+        volumeInfo: {
+          title: 'A Wizard of Earthsea',
+          authors: ['Ursula K. Le Guin'],
+          industryIdentifiers: [
+            { type: 'ISBN_10', identifier: '0553383043' },
+            { type: 'ISBN_13', identifier: '9780553383041' },
+          ],
+        },
+      },
+    ]);
+
+    expect(results).toMatchObject([
+      {
+        sourceName: 'google-books',
+        sourceId: 'google-volume-bad',
+        title: 'Malformed Google Book',
+        author: '',
+        isbn10: [],
+        isbn13: [],
+        coverCandidates: [],
+      },
+      {
+        sourceName: 'google-books',
+        sourceId: 'google-volume-1',
+        title: 'A Wizard of Earthsea',
+        author: 'Ursula K. Le Guin',
+        isbn10: ['0553383043'],
+        isbn13: ['9780553383041'],
       },
     ]);
   });

@@ -80,9 +80,21 @@ function genreArray(value: unknown): Genre[] {
 
 function metadataSourceArray(value: unknown): MetadataSourceName[] | undefined {
   if (!Array.isArray(value)) return undefined;
-  return value.filter((item): item is MetadataSourceName =>
-    isEnumValue(item, METADATA_SOURCE_NAMES),
-  );
+  return value
+    .map((item): unknown => {
+      if (item === 'openLibrary') return 'open-library';
+      if (item === 'googleBooks') return 'google-books';
+      return item;
+    })
+    .filter((item): item is MetadataSourceName =>
+      isEnumValue(item, METADATA_SOURCE_NAMES),
+    );
+}
+
+function metadataStatus(value: unknown): MetadataStatus {
+  if (value === 'found') return 'reviewed';
+  if (isEnumValue(value, METADATA_STATUSES)) return value;
+  return 'manual';
 }
 
 function sourceIds(value: unknown): SourceIds | undefined {
@@ -121,9 +133,7 @@ function migrateBook(rawBook: unknown): Book {
     status: isEnumValue(book.status, STATUSES) ? book.status : 'Want to Read',
     genres: genreArray(book.genres),
     tropes: stringArray(book.tropes),
-    metadataStatus: isEnumValue(book.metadataStatus, METADATA_STATUSES)
-      ? book.metadataStatus
-      : 'manual',
+    metadataStatus: metadataStatus(book.metadataStatus),
   };
 
   if (optionalString(book.startDate) !== undefined) migrated.startDate = optionalString(book.startDate);

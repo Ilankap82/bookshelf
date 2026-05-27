@@ -72,6 +72,30 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function optionalString(value: unknown): string | undefined {
+  return isString(value) ? value : undefined;
+}
+
+function optionalNumber(value: unknown): number | undefined {
+  return isNumber(value) ? value : undefined;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter(isString) : [];
+}
+
+function firstString(value: unknown): string | undefined {
+  return stringArray(value)[0];
+}
+
 function parseOpenLibraryResponse(value: unknown): OpenLibrarySearchResponse {
   if (!isRecord(value) || !Array.isArray(value.docs)) return {};
 
@@ -84,8 +108,8 @@ function parseGoogleBooksResponse(value: unknown): GoogleBooksSearchResponse {
   return { items: value.items.filter(isRecord) as GoogleBooksItem[] };
 }
 
-function isbnBuckets(isbns: readonly string[] | undefined): Pick<MetadataSearchResult, 'isbn10' | 'isbn13'> {
-  const values = isbns ?? [];
+function isbnBuckets(isbns: unknown): Pick<MetadataSearchResult, 'isbn10' | 'isbn13'> {
+  const values = stringArray(isbns);
 
   return {
     isbn10: values.filter((isbn) => isbn.length === 10),
@@ -139,16 +163,22 @@ function openLibraryCoverCandidates(
   return Array.from(new Set(candidates));
 }
 
-function googleCoverCandidates(imageLinks: Record<string, string | undefined> | undefined): string[] {
-  if (imageLinks === undefined) return [];
+function googleCoverCandidates(imageLinks: unknown): string[] {
+  if (!isRecord(imageLinks)) return [];
 
   return Array.from(
     new Set(
       Object.values(imageLinks)
-        .filter((url): url is string => url !== undefined)
+        .filter(isString)
         .map(toHttps),
     ),
   );
+}
+
+function googleIndustryIdentifiers(value: unknown): GoogleBooksIndustryIdentifier[] {
+  return Array.isArray(value)
+    ? value.filter(isRecord) as GoogleBooksIndustryIdentifier[]
+    : [];
 }
 
 function openLibraryUrl(query: MetadataSearchQuery): string {
@@ -199,14 +229,14 @@ export function normalizeOpenLibraryDocs(docs: readonly OpenLibraryDoc[]): Metad
         sourceName: 'open-library',
         sourceId: openLibrarySourceId(doc.key),
         title: doc.title ?? '',
-        author: doc.author_name?.[0] ?? '',
-        publishedYear: doc.first_publish_year,
-        publisher: doc.publisher?.[0],
-        pageCount: doc.number_of_pages_median,
-        language: doc.language?.[0],
+        author: firstString(doc.author_name) ?? '',
+        publishedYear: optionalNumber(doc.first_publish_year),
+        publisher: firstString(doc.publisher),
+        pageCount: optionalNumber(doc.number_of_pages_median),
+        language: firstString(doc.language),
         isbn10,
         isbn13,
-        coverCandidates: openLibraryCoverCandidates(doc.cover_i, isbn10, isbn13),
+        coverCandidates: openLibraryCoverCandidates(optionalNumber(doc.cover_i), isbn10, isbn13),
       };
     });
 }
@@ -215,23 +245,24 @@ export function normalizeGoogleBooksItems(items: readonly GoogleBooksItem[]): Me
   return items
     .filter((item) => item.id !== undefined || item.volumeInfo?.title !== undefined)
     .map((item) => {
-      const volumeInfo = item.volumeInfo;
-      const isbn10 = volumeInfo?.industryIdentifiers
-        ?.filter((identifier) => identifier.type === 'ISBN_10' && identifier.identifier !== undefined)
+      const volumeInfo = isRecord(item.volumeInfo) ? item.volumeInfo : undefined;
+      const identifiers = googleIndustryIdentifiers(volumeInfo?.industryIdentifiers);
+      const isbn10 = identifiers
+        ?.filter((identifier) => identifier.type === 'ISBN_10' && isString(identifier.identifier))
         .map((identifier) => identifier.identifier as string) ?? [];
-      const isbn13 = volumeInfo?.industryIdentifiers
-        ?.filter((identifier) => identifier.type === 'ISBN_13' && identifier.identifier !== undefined)
+      const isbn13 = identifiers
+        ?.filter((identifier) => identifier.type === 'ISBN_13' && isString(identifier.identifier))
         .map((identifier) => identifier.identifier as string) ?? [];
 
       return {
         sourceName: 'google-books',
         sourceId: item.id ?? '',
-        title: volumeInfo?.title ?? '',
-        author: volumeInfo?.authors?.[0] ?? '',
-        publishedYear: parseYear(volumeInfo?.publishedDate),
-        publisher: volumeInfo?.publisher,
-        pageCount: volumeInfo?.pageCount,
-        language: volumeInfo?.language,
+        title: optionalString(volumeInfo?.title) ?? '',
+        author: firstString(volumeInfo?.authors) ?? '',
+        publishedYear: parseYear(optionalString(volumeInfo?.publishedDate)),
+        publisher: optionalString(volumeInfo?.publisher),
+        pageCount: optionalNumber(volumeInfo?.pageCount),
+        language: optionalString(volumeInfo?.language),
         isbn10,
         isbn13,
         coverCandidates: googleCoverCandidates(volumeInfo?.imageLinks),
