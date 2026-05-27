@@ -96,12 +96,68 @@ describe('bookStats', () => {
     });
   });
 
+  it('counts completed books by the year prefix in finishDate', () => {
+    const contextualBooks: Book[] = [
+      {
+        id: 'completed-date-only',
+        title: 'Date Only',
+        author: 'Author Eight',
+        status: 'Completed',
+        finishDate: '2026-01-01',
+        genres: [],
+        tropes: [],
+      },
+      {
+        id: 'completed-other-year',
+        title: 'Other Year',
+        author: 'Author Nine',
+        status: 'Completed',
+        finishDate: '2025-12-31',
+        genres: [],
+        tropes: [],
+      },
+    ];
+
+    expect(getIndexStats(contextualBooks, 2026).completedThisYear).toBe(1);
+  });
+
   it('summarizes active reading progress', () => {
     expect(getReadingStats(books)).toEqual({
       activeCount: 2,
       pagesLeft: 500,
       averageProgress: 13,
       stalledCount: 1,
+    });
+  });
+
+  it('averages progress only for reading books with a positive page count', () => {
+    const contextualBooks: Book[] = [
+      {
+        id: 'reading-with-pages',
+        title: 'Reading With Pages',
+        author: 'Author Eight',
+        status: 'Reading',
+        pageCount: 200,
+        pagesRead: 100,
+        genres: [],
+        tropes: [],
+      },
+      {
+        id: 'reading-without-page-count',
+        title: 'Reading Without Page Count',
+        author: 'Author Nine',
+        status: 'Reading',
+        pagesRead: 100,
+        genres: [],
+        tropes: [],
+      },
+    ];
+
+    expect(getReadingStats(contextualBooks)).toEqual({
+      activeCount: 2,
+      pagesLeft: 100,
+      averageProgress: 50,
+      stalledCount: 0,
     });
   });
 

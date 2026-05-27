@@ -53,7 +53,7 @@ export interface DiscoveryStats {
 export function getIndexStats(books: Book[], year: number): IndexStats {
   const completedInYear = books.filter((book) => {
     if (book.status !== 'Completed' || !book.finishDate) return false;
-    return new Date(book.finishDate).getFullYear() === year;
+    return getYearFromDateString(book.finishDate) === year;
   });
 
   return {
@@ -66,7 +66,9 @@ export function getIndexStats(books: Book[], year: number): IndexStats {
 
 export function getReadingStats(books: Book[]): ReadingStats {
   const reading = books.filter((book) => book.status === 'Reading');
-  const progressValues = reading.map((book) => getProgress(book));
+  const progressValues = reading
+    .filter((book) => (book.pageCount ?? 0) > 0)
+    .map((book) => getProgress(book));
 
   return {
     activeCount: reading.length,
@@ -98,6 +100,11 @@ export function getDiscoveryStats(books: Book[]): DiscoveryStats {
     wantToReadCount: books.filter((book) => book.status === 'Want to Read').length,
     underReadGenres: GENRES.filter((genre) => !completedGenres.has(genre)),
   };
+}
+
+function getYearFromDateString(date: string): number | null {
+  const year = Number(date.slice(0, 4));
+  return Number.isInteger(year) ? year : null;
 }
 
 function getStrongestPattern(books: Book[]): StrongestPattern | null {
