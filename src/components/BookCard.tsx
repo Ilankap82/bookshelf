@@ -28,7 +28,7 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
   const [hover, setHover] = useState(false);
   const palette = GENRE_PALETTE[book.genres[0]] || DEFAULT_PALETTE;
   const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
-  const selectedCover = fetchedFallback || primaryCover;
+  const selectedCover = primaryCover || fetchedFallback;
   const cover = selectedCover && !(failedCover?.bookId === book.id && failedCover.url === selectedCover)
     ? selectedCover
     : null;

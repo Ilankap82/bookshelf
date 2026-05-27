@@ -20,7 +20,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   const [failedCover, setFailedCover] = useState<{ bookId: string; url: string } | null>(null);
   const [confirmDeleteFor, setConfirmDeleteFor] = useState<string | null>(null);
   const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
-  const selectedCover = fetchedFallback || primaryCover;
+  const selectedCover = primaryCover || fetchedFallback;
   const cover = selectedCover && !(failedCover?.bookId === book.id && failedCover.url === selectedCover)
     ? selectedCover
     : null;
@@ -167,6 +167,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           {/* Metadata rows */}
           <Row label="Started"  value={fmtDate(book.startDate)} />
           <Row label="Finished" value={book.finishDate ? `${fmtDate(book.finishDate)}${days ? ` · ${days} days` : ''}` : '—'} />
+          {metadata.subtitle && <Row label="Subtitle" value={metadata.subtitle} />}
           <Row label="Series"   value={book.seriesType === 'Standalone' || !book.seriesName
             ? (book.seriesType || '—')
             : `${book.seriesName}${book.seriesPosition ? ` #${book.seriesPosition}` : ''} · ${book.seriesType}`} />
