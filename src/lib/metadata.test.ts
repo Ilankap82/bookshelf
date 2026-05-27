@@ -30,7 +30,7 @@ describe('metadata', () => {
         sourceId: 'OL45804W',
         title: 'The Left Hand of Darkness',
         author: 'Ursula K. Le Guin',
-        year: 1969,
+        publishedYear: 1969,
         publisher: 'Ace Books',
         pageCount: 304,
         language: 'eng',
@@ -74,7 +74,7 @@ describe('metadata', () => {
         sourceId: 'google-volume-1',
         title: 'A Wizard of Earthsea',
         author: 'Ursula K. Le Guin',
-        year: 1968,
+        publishedYear: 1968,
         publisher: 'Parnassus Press',
         pageCount: 205,
         language: 'en',
@@ -122,7 +122,7 @@ describe('metadata', () => {
         sourceId: 'google-volume-1',
         title: 'Kindred',
         author: 'Octavia E. Butler',
-        year: 1979,
+        publishedYear: 1979,
       },
     ]);
   });
@@ -158,11 +158,11 @@ describe('metadata', () => {
         'https://covers.openlibrary.org/b/isbn/9780441478125-L.jpg',
       ],
       metadataStatus: 'candidate',
-      metadataSources: ['openLibrary'],
+      metadataSources: ['open-library'],
       sourceIds: {
-        openLibrary: 'OL45804W',
-        isbn10: '0441478123',
-        isbn13: '9780441478125',
+        openLibraryKey: 'OL45804W',
+        isbn10: ['0441478123'],
+        isbn13: ['9780441478125'],
       },
     });
   });
@@ -176,6 +176,8 @@ describe('metadata', () => {
       genres: [],
       tropes: [],
       metadataStatus: 'manual',
+      metadataSources: ['manual'],
+      coverCandidates: [],
     });
   });
 });

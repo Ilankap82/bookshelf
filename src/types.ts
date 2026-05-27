@@ -3,13 +3,13 @@ export const SCHEMA_VERSION = 2 as const;
 export type Status = 'Completed' | 'Reading' | 'Want to Read' | 'DNF';
 export type Format = 'eBook' | 'Audio Book' | 'Print' | 'Book & Audio';
 export type SeriesType = 'Standalone' | 'Series' | 'Trilogy' | 'Duology' | 'Saga';
-export type MetadataStatus = 'manual' | 'pending' | 'found' | 'not-found' | 'error';
-export type MetadataSourceName = 'manual' | 'openLibrary' | 'googleBooks';
+export type MetadataStatus = 'manual' | 'candidate' | 'reviewed';
+export type MetadataSourceName = 'open-library' | 'google-books' | 'manual';
 export interface SourceIds {
-  openLibrary?: string;
-  googleBooks?: string;
-  isbn10?: string;
-  isbn13?: string;
+  openLibraryKey?: string;
+  googleBooksId?: string;
+  isbn10?: string[];
+  isbn13?: string[];
 }
 
 export type Genre =

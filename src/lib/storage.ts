@@ -33,15 +33,13 @@ const GENRES: readonly Genre[] = [
 ];
 const METADATA_STATUSES: readonly MetadataStatus[] = [
   'manual',
-  'pending',
-  'found',
-  'not-found',
-  'error',
+  'candidate',
+  'reviewed',
 ];
 const METADATA_SOURCE_NAMES: readonly MetadataSourceName[] = [
   'manual',
-  'openLibrary',
-  'googleBooks',
+  'open-library',
+  'google-books',
 ];
 
 type AppDataRecord = Record<string, unknown> & { books: unknown[] };
@@ -91,15 +89,19 @@ function sourceIds(value: unknown): SourceIds | undefined {
   if (!isRecord(value)) return undefined;
 
   const ids: SourceIds = {};
-  const openLibrary = optionalString(value.openLibrary);
-  const googleBooks = optionalString(value.googleBooks);
-  const isbn10 = optionalString(value.isbn10);
-  const isbn13 = optionalString(value.isbn13);
+  const openLibraryKey = optionalString(value.openLibraryKey) ?? optionalString(value.openLibrary);
+  const googleBooksId = optionalString(value.googleBooksId) ?? optionalString(value.googleBooks);
+  const isbn10 = stringArray(value.isbn10);
+  const isbn13 = stringArray(value.isbn13);
+  const legacyIsbn10 = optionalString(value.isbn10);
+  const legacyIsbn13 = optionalString(value.isbn13);
 
-  if (openLibrary !== undefined) ids.openLibrary = openLibrary;
-  if (googleBooks !== undefined) ids.googleBooks = googleBooks;
-  if (isbn10 !== undefined) ids.isbn10 = isbn10;
-  if (isbn13 !== undefined) ids.isbn13 = isbn13;
+  if (openLibraryKey !== undefined) ids.openLibraryKey = openLibraryKey;
+  if (googleBooksId !== undefined) ids.googleBooksId = googleBooksId;
+  if (isbn10.length > 0) ids.isbn10 = isbn10;
+  if (isbn13.length > 0) ids.isbn13 = isbn13;
+  if (legacyIsbn10 !== undefined) ids.isbn10 = [legacyIsbn10];
+  if (legacyIsbn13 !== undefined) ids.isbn13 = [legacyIsbn13];
 
   return Object.keys(ids).length > 0 ? ids : undefined;
 }

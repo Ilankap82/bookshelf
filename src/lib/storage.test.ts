@@ -65,6 +65,38 @@ describe('storage', () => {
     });
   });
 
+  it('preserves corrected metadata source and id shapes', () => {
+    const migrated = migrateAppData({
+      books: [
+        {
+          id: 'book-1',
+          title: 'Book Title',
+          author: 'Author Name',
+          status: 'Want to Read',
+          genres: [],
+          tropes: [],
+          metadataStatus: 'candidate',
+          metadataSources: ['open-library'],
+          sourceIds: {
+            openLibraryKey: 'OL123W',
+            isbn10: ['0441478123'],
+            isbn13: ['9780441478125'],
+          },
+        },
+      ],
+    });
+
+    expect(migrated.books[0]).toMatchObject({
+      metadataStatus: 'candidate',
+      metadataSources: ['open-library'],
+      sourceIds: {
+        openLibraryKey: 'OL123W',
+        isbn10: ['0441478123'],
+        isbn13: ['9780441478125'],
+      },
+    });
+  });
+
   it('rejects JSON without a books array', () => {
     expect(() => parseImportedData('{"items":[]}')).toThrow(
       'Import file must contain a books array.',

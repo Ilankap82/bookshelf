@@ -13,7 +13,7 @@ export interface MetadataSearchResult {
   sourceId: string;
   title: string;
   author: string;
-  year?: number;
+  publishedYear?: number;
   publisher?: string;
   pageCount?: number;
   language?: string;
@@ -26,10 +26,6 @@ export interface MetadataSearchResponse {
   results: MetadataSearchResult[];
   errors: string[];
 }
-
-export type DraftBookFromMetadata = Omit<Book, 'metadataStatus'> & {
-  metadataStatus: 'candidate';
-};
 
 interface OpenLibraryDoc {
   key?: string;
@@ -107,16 +103,16 @@ function toHttps(url: string): string {
 }
 
 function metadataSourceName(sourceName: MetadataSearchSourceName): MetadataSourceName {
-  return sourceName === 'open-library' ? 'openLibrary' : 'googleBooks';
+  return sourceName;
 }
 
 function sourceIdsFromResult(result: MetadataSearchResult): SourceIds {
   const ids: SourceIds = {};
 
-  if (result.sourceName === 'open-library') ids.openLibrary = result.sourceId;
-  if (result.sourceName === 'google-books') ids.googleBooks = result.sourceId;
-  if (result.isbn10[0] !== undefined) ids.isbn10 = result.isbn10[0];
-  if (result.isbn13[0] !== undefined) ids.isbn13 = result.isbn13[0];
+  if (result.sourceName === 'open-library') ids.openLibraryKey = result.sourceId;
+  if (result.sourceName === 'google-books') ids.googleBooksId = result.sourceId;
+  if (result.isbn10.length > 0) ids.isbn10 = result.isbn10;
+  if (result.isbn13.length > 0) ids.isbn13 = result.isbn13;
 
   return ids;
 }
@@ -204,7 +200,7 @@ export function normalizeOpenLibraryDocs(docs: readonly OpenLibraryDoc[]): Metad
         sourceId: openLibrarySourceId(doc.key),
         title: doc.title ?? '',
         author: doc.author_name?.[0] ?? '',
-        year: doc.first_publish_year,
+        publishedYear: doc.first_publish_year,
         publisher: doc.publisher?.[0],
         pageCount: doc.number_of_pages_median,
         language: doc.language?.[0],
@@ -232,7 +228,7 @@ export function normalizeGoogleBooksItems(items: readonly GoogleBooksItem[]): Me
         sourceId: item.id ?? '',
         title: volumeInfo?.title ?? '',
         author: volumeInfo?.authors?.[0] ?? '',
-        year: parseYear(volumeInfo?.publishedDate),
+        publishedYear: parseYear(volumeInfo?.publishedDate),
         publisher: volumeInfo?.publisher,
         pageCount: volumeInfo?.pageCount,
         language: volumeInfo?.language,
@@ -276,9 +272,9 @@ export async function searchBookMetadata(
 export function createDraftBookFromResult(
   result: MetadataSearchResult,
   id: string = crypto.randomUUID(),
-): DraftBookFromMetadata {
+): Book {
   const coverUrl = result.coverCandidates[0];
-  const draft: DraftBookFromMetadata = {
+  const draft: Book = {
     id,
     title: result.title,
     author: result.author,
@@ -310,5 +306,7 @@ export function createManualDraftBook(
     genres: [],
     tropes: [],
     metadataStatus: 'manual',
+    metadataSources: ['manual'],
+    coverCandidates: [],
   };
 }
