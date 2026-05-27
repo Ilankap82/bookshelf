@@ -210,6 +210,47 @@ describe('metadata', () => {
     ]);
   });
 
+  it('keeps valid Open Library search results when another doc has a non-string key', async () => {
+    const fetcher: typeof fetch = async (url) => {
+      const requestUrl = url.toString();
+
+      if (requestUrl.startsWith('https://openlibrary.org/search.json')) {
+        return Response.json({
+          docs: [
+            { key: 123, title: 'Bad' },
+            {
+              key: '/works/OL45804W',
+              title: 'The Left Hand of Darkness',
+              author_name: ['Ursula K. Le Guin'],
+            },
+          ],
+        });
+      }
+
+      return Response.json({ items: [] });
+    };
+
+    const response = await searchBookMetadata(
+      { title: 'The Left Hand of Darkness', author: 'Ursula K. Le Guin' },
+      fetcher,
+    );
+
+    expect(response.errors).toEqual([]);
+    expect(response.results).toMatchObject([
+      {
+        sourceName: 'open-library',
+        sourceId: '',
+        title: 'Bad',
+      },
+      {
+        sourceName: 'open-library',
+        sourceId: 'OL45804W',
+        title: 'The Left Hand of Darkness',
+        author: 'Ursula K. Le Guin',
+      },
+    ]);
+  });
+
   it('creates a draft Book from a metadata result candidate', () => {
     const result: MetadataSearchResult = {
       sourceName: 'open-library',

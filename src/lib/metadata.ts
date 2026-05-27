@@ -141,8 +141,8 @@ function sourceIdsFromResult(result: MetadataSearchResult): SourceIds {
   return ids;
 }
 
-function openLibrarySourceId(key: string | undefined): string {
-  return key?.split('/').filter(Boolean).at(-1) ?? '';
+function openLibrarySourceId(key: unknown): string {
+  return optionalString(key)?.split('/').filter(Boolean).at(-1) ?? '';
 }
 
 function openLibraryCoverCandidates(
@@ -221,14 +221,14 @@ function googleBooksUrl(query: MetadataSearchQuery): string {
 
 export function normalizeOpenLibraryDocs(docs: readonly OpenLibraryDoc[]): MetadataSearchResult[] {
   return docs
-    .filter((doc) => doc.title !== undefined || doc.key !== undefined)
+    .filter((doc) => optionalString(doc.title) !== undefined || optionalString(doc.key) !== undefined)
     .map((doc) => {
       const { isbn10, isbn13 } = isbnBuckets(doc.isbn);
 
       return {
         sourceName: 'open-library',
         sourceId: openLibrarySourceId(doc.key),
-        title: doc.title ?? '',
+        title: optionalString(doc.title) ?? '',
         author: firstString(doc.author_name) ?? '',
         publishedYear: optionalNumber(doc.first_publish_year),
         publisher: firstString(doc.publisher),
