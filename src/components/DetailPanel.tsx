@@ -1,48 +1,56 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 import { GenreTag, StarRating } from '../App';
-import { fetchCoverUrl, isBadCoverUrl } from '../utils/cover';
+import { fetchCoverUrl, getPrimaryCoverUrl } from '../utils/cover';
+
+type BookMetadata = Book & {
+  subtitle?: string;
+  description?: string;
+  publishedYear?: number;
+  publisher?: string;
+  language?: string;
+};
 
 export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   book: Book; onClose: () => void; onEdit: () => void; onDelete: () => void;
 }) {
-  const [cover, setCover] = useState<string | null>(book.coverUrl || null);
-  const [coverError, setCoverError] = useState(false);
-  const [fetchedFallback, setFetchedFallback] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  useEffect(() => {
-    const storedUrl = book.coverUrl || null;
-    setCover(storedUrl);
-    setCoverError(false);
-    setFetchedFallback(false);
-    setConfirmDelete(false);
-    if (!storedUrl || isBadCoverUrl(storedUrl)) {
-      fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
-    }
-  }, [book.id]);
-
-  function handleCoverError() {
-    if (!fetchedFallback) {
-      setFetchedFallback(true);
-      fetchCoverUrl(book.title, book.author).then(url => {
-        if (url && url !== cover) {
-          setCover(url);
-          setCoverError(false);
-        } else {
-          setCoverError(true);
-        }
-      });
-    } else {
-      setCoverError(true);
-    }
-  }
+  const metadata = book as BookMetadata;
+  const primaryCover = getPrimaryCoverUrl(book);
+  const [fetchedCover, setFetchedCover] = useState<{ bookId: string; url: string } | null>(null);
+  const [failedCover, setFailedCover] = useState<{ bookId: string; url: string } | null>(null);
+  const [confirmDeleteFor, setConfirmDeleteFor] = useState<string | null>(null);
+  const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
+  const selectedCover = fetchedFallback || primaryCover;
+  const cover = selectedCover && !(failedCover?.bookId === book.id && failedCover.url === selectedCover)
+    ? selectedCover
+    : null;
+  const confirmDelete = confirmDeleteFor === book.id;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (primaryCover) return;
+
+    let cancelled = false;
+    fetchCoverUrl(book.title, book.author).then(url => {
+      if (!cancelled && url) setFetchedCover({ bookId: book.id, url });
+    });
+
+    return () => { cancelled = true; };
+  }, [book.id, book.title, book.author, primaryCover]);
+
+  function handleCoverError() {
+    if (cover) setFailedCover({ bookId: book.id, url: cover });
+    if (fetchedFallback) return;
+
+    fetchCoverUrl(book.title, book.author).then(url => {
+      if (url && url !== cover) setFetchedCover({ bookId: book.id, url });
+    });
+  }
 
   const statusStyle: Record<string, { bg: string; color: string; dot: string }> = {
     Completed:      { bg: 'rgba(6,125,85,0.10)',  color: '#067D55', dot: '#067D55' },
@@ -91,7 +99,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           {/* Cover — 45% */}
           <div style={{ width: '42%', flexShrink: 0, paddingRight: 22 }}>
             <div style={{ aspectRatio: '2/3', borderRadius: 10, overflow: 'hidden', boxShadow: '0px 12px 32px rgba(27,28,25,0.14)', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)' }}>
-              {cover && !coverError
+              {cover
                 ? <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={handleCoverError} />
                 : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.5 }}>📖</div>
               }
@@ -101,6 +109,9 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           {/* Metadata — 58% */}
           <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
             <div style={{ fontFamily: "'Newsreader', serif", fontStyle: 'italic' as const, fontSize: 20, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.3, marginBottom: 5 }}>{book.title}</div>
+            {metadata.subtitle && (
+              <div style={{ fontSize: 13, color: '#4B4B4B', lineHeight: 1.45, marginBottom: 5 }}>{metadata.subtitle}</div>
+            )}
             <div style={{ fontSize: 14, color: '#6B6B6B', marginBottom: 14 }}>{book.author}</div>
 
             {/* Metadata ribbon */}
@@ -159,6 +170,10 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           <Row label="Series"   value={book.seriesType === 'Standalone' || !book.seriesName
             ? (book.seriesType || '—')
             : `${book.seriesName}${book.seriesPosition ? ` #${book.seriesPosition}` : ''} · ${book.seriesType}`} />
+          {metadata.publishedYear && <Row label="Published" value={String(metadata.publishedYear)} />}
+          {metadata.publisher && <Row label="Publisher" value={metadata.publisher} />}
+          {metadata.language && <Row label="Language" value={metadata.language} />}
+          {book.metadataStatus && <Row label="Metadata" value={metadataStatusLabel[book.metadataStatus] || book.metadataStatus} />}
 
           {book.tropes.length > 0 && (
             <div style={{ marginBottom: 16 }}>
@@ -167,6 +182,15 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
                 {book.tropes.map(t => (
                   <span key={t} style={{ background: 'rgba(0,98,65,0.08)', color: '#006241', fontSize: 11, fontWeight: 500, padding: '3px 9px', borderRadius: 10 }}>{t}</span>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {metadata.description && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={labelStyle}>Description</div>
+              <div style={{ marginTop: 8, fontSize: 13, color: '#4B4B4B', lineHeight: 1.7 }}>
+                {metadata.description}
               </div>
             </div>
           )}
@@ -193,11 +217,11 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           {confirmDelete ? (
             <>
               <button onClick={onDelete} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(220,38,38,0.35)', background: 'rgba(220,38,38,0.08)', color: '#DC2626', fontWeight: 600 }}>Confirm Delete</button>
-              <button onClick={() => setConfirmDelete(false)} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(45,45,45,0.18)', background: 'transparent', color: '#4B4B4B' }}>Cancel</button>
+              <button onClick={() => setConfirmDeleteFor(null)} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(45,45,45,0.18)', background: 'transparent', color: '#4B4B4B' }}>Cancel</button>
             </>
           ) : (
             <button
-              onClick={() => setConfirmDelete(true)}
+              onClick={() => setConfirmDeleteFor(book.id)}
               style={{ padding: '10px 14px', borderRadius: 8, fontSize: 13, cursor: 'pointer', border: '1px solid rgba(220,38,38,0.25)', background: 'transparent', color: '#DC2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
@@ -212,6 +236,12 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
 const labelStyle: React.CSSProperties = {
   fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px',
   color: '#6B6B6B', fontWeight: 700, marginBottom: 0,
+};
+
+const metadataStatusLabel: Record<string, string> = {
+  manual: 'Manual',
+  candidate: 'Needs review',
+  reviewed: 'Reviewed',
 };
 
 function Row({ label, value }: { label: string; value: string }) {
