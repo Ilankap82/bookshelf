@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Book } from '../types';
 import type { UserProfile } from '../App';
 
-type View = 'home' | 'library' | 'discovery' | 'stats';
+type View = 'index' | 'reading' | 'archive' | 'discovery';
 type FilterStatus = 'All' | 'Completed' | 'Reading' | 'Want to Read' | 'DNF';
 
 interface Props {
@@ -95,10 +95,10 @@ export default function Sidebar({ view, onViewChange, counts, currentlyReading, 
 
       {/* Nav */}
       <nav style={{ padding: '0 10px', flex: 1 }}>
-        <NavItem icon={Icons.home} label="Home" active={view === 'home'} onClick={() => onViewChange('home')} />
-        <NavItem icon={Icons.library} label="Library" badge={counts.all} active={view === 'library'} onClick={() => onViewChange('library')} />
+        <NavItem icon={Icons.home} label="Index" active={view === 'index'} onClick={() => onViewChange('index')} />
+        <NavItem icon={Icons.stats} label="Reading" badge={counts.reading} active={view === 'reading'} onClick={() => onViewChange('reading')} />
+        <NavItem icon={Icons.library} label="Archive" badge={counts.all} active={view === 'archive'} onClick={() => onViewChange('archive')} />
         <NavItem icon={Icons.discovery} label="Discovery" active={view === 'discovery'} onClick={() => onViewChange('discovery')} />
-        <NavItem icon={Icons.stats} label="Stats" active={view === 'stats'} onClick={() => onViewChange('stats')} />
 
         <div style={navLabel}>By Status</div>
         <NavItem
