@@ -42,7 +42,7 @@ function saveUser(u: UserProfile) {
 function loadData(): Book[] {
   try {
     const storedBooks = loadBooksFromStorage();
-    return storedBooks.length > 0 ? storedBooks : SEED_BOOKS;
+    return storedBooks ?? SEED_BOOKS;
   } catch {
     return SEED_BOOKS;
   }

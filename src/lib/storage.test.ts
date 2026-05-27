@@ -1,9 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
+  loadBooksFromStorage,
   migrateAppData,
   parseImportedData,
   serializeAppData,
 } from './storage';
+import { SEED_BOOKS } from '../data/seedBooks';
+
+function storageWithItem(value: string | null): Storage {
+  return {
+    getItem: () => value,
+    setItem: () => undefined,
+    removeItem: () => undefined,
+    clear: () => undefined,
+    key: () => null,
+    length: value === null ? 0 : 1,
+  };
+}
 
 describe('storage', () => {
   it('migrates legacy exports that only contain books', () => {
@@ -63,6 +76,19 @@ describe('storage', () => {
         },
       ],
     });
+  });
+
+  it('returns an empty array for valid empty stored data', () => {
+    const books = loadBooksFromStorage(
+      storageWithItem(JSON.stringify({ schemaVersion: 2, books: [] })),
+    );
+
+    expect(books).toEqual([]);
+    expect(books).not.toEqual(SEED_BOOKS);
+  });
+
+  it('returns null when no stored data exists', () => {
+    expect(loadBooksFromStorage(storageWithItem(null))).toBeNull();
   });
 
   it('preserves corrected metadata source and id shapes', () => {

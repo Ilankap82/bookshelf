@@ -191,9 +191,9 @@ export function serializeAppData(books: Book[], lastExported: string = new Date(
   });
 }
 
-export function loadBooksFromStorage(storage: Storage = localStorage): Book[] {
+export function loadBooksFromStorage(storage: Storage = localStorage): Book[] | null {
   const raw = storage.getItem(STORAGE_KEY);
-  if (raw === null) return [];
+  if (raw === null) return null;
 
   return parseImportedData(raw).books;
 }
