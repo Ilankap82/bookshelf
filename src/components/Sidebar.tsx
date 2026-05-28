@@ -53,7 +53,7 @@ const Icons = {
 
 export default function Sidebar({ view, onViewChange, counts, currentlyReading, filterStatus, onFilterStatus, onAddBook, user, onEditUser }: Props) {
   return (
-    <aside style={{
+    <aside className="book-tracker-sidebar" style={{
       width: 240, minHeight: '100vh',
       background: '#F1F1ED',
       display: 'flex', flexDirection: 'column', flexShrink: 0,

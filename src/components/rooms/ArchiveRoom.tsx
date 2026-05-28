@@ -59,9 +59,9 @@ export default function ArchiveRoom({
 
   return (
     <>
-      <div style={S.topbar}>
+      <div className="room-topbar" style={S.topbar}>
         <span style={S.pageTitle}>Archive</span>
-        <div style={S.topbarRight}>
+        <div className="room-topbar-actions" style={S.topbarRight}>
           <div style={{ position: 'relative' }}>
             <span style={S.searchIcon}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>

@@ -144,7 +144,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#FAF9F4', color: '#2D2D2D', fontFamily: "'Manrope', sans-serif" }}>
+    <div className="book-tracker-shell" style={{ display: 'flex', minHeight: '100vh', background: '#FAF9F4', color: '#2D2D2D', fontFamily: "'Manrope', sans-serif" }}>
       <Sidebar
         view={view}
         onViewChange={setView}
@@ -157,7 +157,7 @@ export default function App() {
         onEditUser={() => setEditingUser(true)}
       />
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+      <main className="book-tracker-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         {view === 'index' && (
           <IndexRoom
             books={books}

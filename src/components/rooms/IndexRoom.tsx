@@ -23,9 +23,9 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
 
   return (
     <>
-      <div style={S.topbar}>
+      <div className="room-topbar" style={S.topbar}>
         <span style={S.pageTitle}>Index</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
+        <div className="room-topbar-actions" style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
           <button style={S.btnGhost} onClick={() => onNavigate('reading')}>Reading</button>
           <button style={S.btnGhost} onClick={() => onNavigate('archive')}>Archive</button>
           <button style={S.btnPrimary} onClick={() => onNavigate('discovery')}>Discovery</button>
@@ -33,14 +33,14 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
       </div>
 
       <div style={S.content}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 14, marginBottom: 28 }}>
+        <div className="index-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 14, marginBottom: 28 }}>
           <StatCard label={`${year} completions`} value={indexStats.completedThisYear.toLocaleString()} />
           <StatCard label="Currently reading" value={indexStats.currentlyReading.toLocaleString()} />
           <StatCard label="Archive size" value={indexStats.archiveSize.toLocaleString()} />
           <StatCard label="Strongest pattern" value={indexStats.strongestPattern?.label ?? 'No pattern yet'} detail={indexStats.strongestPattern ? `${indexStats.strongestPattern.count} matches` : undefined} />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18, alignItems: 'start' }}>
+        <div className="index-room-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18, alignItems: 'start' }}>
           <section>
             <SectionTitle title="Currently Reading" action="Open Reading Room" onAction={() => onNavigate('reading')} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
