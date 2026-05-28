@@ -17,7 +17,7 @@ type EditableBook = Book & {
   sourceName?: MetadataSourceName;
 };
 
-export default function BookForm({ book, onSave, onClose }: { book: Book | null; onSave: (b: Book) => void; onClose: () => void; }) {
+export default function BookForm({ book, onSave, onClose, isNew = false }: { book: Book | null; onSave: (b: Book) => void; onClose: () => void; isNew?: boolean; }) {
   const [form, setForm] = useState<Partial<EditableBook>>((book as EditableBook | null) || {
     status: 'Want to Read', genres: [], tropes: [], seriesType: 'Standalone',
   });
@@ -79,7 +79,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
         {/* Header */}
         <div style={{ padding: '20px 28px', borderBottom: '1px solid rgba(45,45,45,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ fontFamily: "'Newsreader', serif", fontStyle: 'italic' as const, fontSize: 20, fontWeight: 600, color: '#2D2D2D' }}>
-            {book ? 'Edit Book' : 'Add to Archive'}
+            {book && !isNew ? 'Edit Book' : 'Add to Archive'}
           </div>
           <button
             onClick={onClose}
@@ -309,7 +309,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
             onClick={handleSave}
             style={{ flex: 1, padding: '11px 0', borderRadius: 8, fontSize: 14, fontFamily: "'Manrope', sans-serif", cursor: 'pointer', border: 'none', fontWeight: 600, background: 'linear-gradient(160deg, #067D55 0%, #006241 100%)', color: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,98,65,0.25)' }}
           >
-            {book ? 'Save Changes' : 'Add to Archive'}
+            {book && !isNew ? 'Save Changes' : 'Add to Archive'}
           </button>
           <button
             onClick={onClose}

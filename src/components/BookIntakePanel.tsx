@@ -71,7 +71,7 @@ export default function BookIntakePanel({ onSave, onClose }: BookIntakePanelProp
   }
 
   if (draft) {
-    return <BookForm book={draft} onSave={handleSave} onClose={() => setDraft(null)} />;
+    return <BookForm book={draft} onSave={handleSave} onClose={() => setDraft(null)} isNew />;
   }
 
   return (
