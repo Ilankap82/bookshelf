@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 import { GenreTag, StarRating } from '../App';
-import { fetchCoverUrl, getPrimaryCoverUrl } from '../utils/cover';
+import { fetchCoverUrl, getCoverCandidates } from '../utils/cover';
 
 type BookMetadata = Book & {
   subtitle?: string;
@@ -15,15 +15,14 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   book: Book; onClose: () => void; onEdit: () => void; onDelete: () => void;
 }) {
   const metadata = book as BookMetadata;
-  const primaryCover = getPrimaryCoverUrl(book);
   const [fetchedCover, setFetchedCover] = useState<{ bookId: string; url: string } | null>(null);
-  const [failedCover, setFailedCover] = useState<{ bookId: string; url: string } | null>(null);
+  const [failedCovers, setFailedCovers] = useState<{ bookId: string; urls: string[] } | null>(null);
   const [confirmDeleteFor, setConfirmDeleteFor] = useState<string | null>(null);
+  const failedUrls = failedCovers?.bookId === book.id ? failedCovers.urls : [];
+  const coverCandidates = getCoverCandidates(book, failedUrls);
+  const candidateCover = coverCandidates[0] ?? null;
   const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
-  const selectedCover = primaryCover || fetchedFallback;
-  const cover = selectedCover && !(failedCover?.bookId === book.id && failedCover.url === selectedCover)
-    ? selectedCover
-    : null;
+  const cover = candidateCover || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
   const confirmDelete = confirmDeleteFor === book.id;
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   }, [onClose]);
 
   useEffect(() => {
-    if (primaryCover) return;
+    if (candidateCover) return;
 
     let cancelled = false;
     fetchCoverUrl(book.title, book.author).then(url => {
@@ -41,11 +40,16 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
     });
 
     return () => { cancelled = true; };
-  }, [book.id, book.title, book.author, primaryCover]);
+  }, [book.id, book.title, book.author, candidateCover]);
 
   function handleCoverError() {
-    if (cover) setFailedCover({ bookId: book.id, url: cover });
-    if (fetchedFallback) return;
+    if (cover) {
+      setFailedCovers(prev => {
+        const urls = prev?.bookId === book.id ? prev.urls : [];
+        return urls.includes(cover) ? prev : { bookId: book.id, urls: [...urls, cover] };
+      });
+    }
+    if (coverCandidates.length > 1 || fetchedFallback) return;
 
     fetchCoverUrl(book.title, book.author).then(url => {
       if (url && url !== cover) setFetchedCover({ bookId: book.id, url });

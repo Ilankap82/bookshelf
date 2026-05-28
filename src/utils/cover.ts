@@ -28,6 +28,14 @@ export function getPrimaryCoverUrl(book: Pick<Book, 'coverUrl' | 'coverCandidate
   return cleanCoverCandidates(book.coverCandidates ?? [])[0] ?? null;
 }
 
+export function getCoverCandidates(
+  book: Pick<Book, 'coverUrl' | 'coverCandidates'>,
+  failedUrls: string[] = [],
+): string[] {
+  const candidates = cleanCoverCandidates([book.coverUrl, ...(book.coverCandidates ?? [])]);
+  return candidates.filter(candidate => !failedUrls.includes(candidate));
+}
+
 function normalize(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
 }

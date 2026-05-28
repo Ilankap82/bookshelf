@@ -43,6 +43,10 @@ const METADATA_SOURCE_NAMES: readonly MetadataSourceName[] = [
 ];
 
 type AppDataRecord = Record<string, unknown> & { books: unknown[] };
+export type LoadBooksFromStorageResult =
+  | { status: 'missing' }
+  | { status: 'valid'; books: Book[] }
+  | { status: 'invalid'; error: unknown };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -138,6 +142,11 @@ function migrateBook(rawBook: unknown): Book {
 
   if (optionalString(book.startDate) !== undefined) migrated.startDate = optionalString(book.startDate);
   if (optionalString(book.finishDate) !== undefined) migrated.finishDate = optionalString(book.finishDate);
+  if (optionalString(book.subtitle) !== undefined) migrated.subtitle = optionalString(book.subtitle);
+  if (optionalString(book.description) !== undefined) migrated.description = optionalString(book.description);
+  if (optionalNumber(book.publishedYear) !== undefined) migrated.publishedYear = optionalNumber(book.publishedYear);
+  if (optionalString(book.publisher) !== undefined) migrated.publisher = optionalString(book.publisher);
+  if (optionalString(book.language) !== undefined) migrated.language = optionalString(book.language);
   if (optionalNumber(book.pageCount) !== undefined) migrated.pageCount = optionalNumber(book.pageCount);
   if (optionalNumber(book.rating) !== undefined) migrated.rating = optionalNumber(book.rating);
   if (isEnumValue(book.format, FORMATS)) migrated.format = book.format;
@@ -196,6 +205,17 @@ export function loadBooksFromStorage(storage: Storage = localStorage): Book[] | 
   if (raw === null) return null;
 
   return parseImportedData(raw).books;
+}
+
+export function loadBooksFromStorageResult(storage: Storage = localStorage): LoadBooksFromStorageResult {
+  const raw = storage.getItem(STORAGE_KEY);
+  if (raw === null) return { status: 'missing' };
+
+  try {
+    return { status: 'valid', books: parseImportedData(raw).books };
+  } catch (error) {
+    return { status: 'invalid', error };
+  }
 }
 
 export function saveBooksToStorage(

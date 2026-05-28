@@ -3,7 +3,7 @@ import type { Book, Status, Genre, Format } from './types';
 import { SEED_BOOKS } from './data/seedBooks';
 import { RECOMMENDATIONS } from './data/recommendations';
 import type { Recommendation } from './data/recommendations';
-import { loadBooksFromStorage, parseImportedData, saveBooksToStorage, serializeAppData } from './lib/storage';
+import { loadBooksFromStorageResult, parseImportedData, saveBooksToStorage, serializeAppData } from './lib/storage';
 import DetailPanel from './components/DetailPanel';
 import BookForm from './components/BookForm';
 import BookIntakePanel from './components/BookIntakePanel';
@@ -15,6 +15,7 @@ import ArchiveRoom from './components/rooms/ArchiveRoom';
 
 type View = 'index' | 'reading' | 'archive' | 'discovery';
 type FilterStatus = Status | 'All';
+type InitialData = { books: Book[]; skipInitialSave: boolean };
 
 const USER_KEY = 'bookshelf_user';
 
@@ -39,13 +40,10 @@ function saveUser(u: UserProfile) {
   localStorage.setItem(USER_KEY, JSON.stringify(u));
 }
 
-function loadData(): Book[] {
-  try {
-    const storedBooks = loadBooksFromStorage();
-    return storedBooks ?? SEED_BOOKS;
-  } catch {
-    return SEED_BOOKS;
-  }
+function loadData(): InitialData {
+  const storedBooks = loadBooksFromStorageResult();
+  if (storedBooks.status === 'valid') return { books: storedBooks.books, skipInitialSave: false };
+  return { books: SEED_BOOKS, skipInitialSave: storedBooks.status === 'invalid' };
 }
 
 function saveData(books: Book[]) {
@@ -53,7 +51,8 @@ function saveData(books: Book[]) {
 }
 
 export default function App() {
-  const [books, setBooks] = useState<Book[]>(loadData);
+  const [initialData] = useState(loadData);
+  const [books, setBooks] = useState<Book[]>(initialData.books);
   const [view, setView] = useState<View>('index');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('All');
   const [filterGenre, setFilterGenre] = useState<Genre | 'All'>('All');
@@ -65,6 +64,7 @@ export default function App() {
   const [user, setUser] = useState<UserProfile>(loadUser);
   const [editingUser, setEditingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const skipInitialBooksSaveRef = useRef(initialData.skipInitialSave);
 
   function updateUser(u: UserProfile) {
     setUser(u);
@@ -72,7 +72,13 @@ export default function App() {
     setEditingUser(false);
   }
 
-  useEffect(() => { saveData(books); }, [books]);
+  useEffect(() => {
+    if (skipInitialBooksSaveRef.current) {
+      skipInitialBooksSaveRef.current = false;
+      return;
+    }
+    saveData(books);
+  }, [books]);
 
   const filteredBooks = useMemo(() => {
     return books.filter(b => {

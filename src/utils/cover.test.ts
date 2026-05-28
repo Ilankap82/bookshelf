@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   cleanCoverCandidates,
+  getCoverCandidates,
   getPrimaryCoverUrl,
 } from './cover';
 
@@ -26,5 +27,18 @@ describe('cover utilities', () => {
       coverUrl: 'https://example.com/manual-cover.jpg',
       coverCandidates: ['https://example.com/candidate-cover.jpg'],
     })).toBe('https://example.com/manual-cover.jpg');
+  });
+
+  it('returns remaining cover candidates after failed urls', () => {
+    expect(getCoverCandidates(
+      {
+        coverUrl: 'https://example.com/bad-cover.jpg',
+        coverCandidates: [
+          'https://example.com/bad-cover.jpg',
+          'https://example.com/good-cover.jpg',
+        ],
+      },
+      ['https://example.com/bad-cover.jpg'],
+    )).toEqual(['https://example.com/good-cover.jpg']);
   });
 });

@@ -20,7 +20,12 @@ export type Genre =
 export interface Book {
   id: string;
   title: string;
+  subtitle?: string;
   author: string;
+  description?: string;
+  publishedYear?: number;
+  publisher?: string;
+  language?: string;
   status: Status;
   startDate?: string;
   finishDate?: string;

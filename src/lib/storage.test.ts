@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  loadBooksFromStorageResult,
   loadBooksFromStorage,
   migrateAppData,
   parseImportedData,
@@ -78,6 +79,36 @@ describe('storage', () => {
     });
   });
 
+  it('preserves discovered metadata through migration and serialization', () => {
+    const imported = parseImportedData(JSON.stringify({
+      books: [
+        {
+          id: 'book-1',
+          title: 'Dune',
+          subtitle: 'Deluxe Edition',
+          author: 'Frank Herbert',
+          description: 'A desert planet changes everything.',
+          publishedYear: 1965,
+          publisher: 'Chilton Books',
+          language: 'en',
+          status: 'Completed',
+          genres: ['Sci-Fi'],
+          tropes: [],
+        },
+      ],
+    }));
+    const serialized = serializeAppData(imported.books, '2026-05-26T12:00:00.000Z');
+    const reparsed = parseImportedData(serialized);
+
+    expect(reparsed.books[0]).toMatchObject({
+      subtitle: 'Deluxe Edition',
+      description: 'A desert planet changes everything.',
+      publishedYear: 1965,
+      publisher: 'Chilton Books',
+      language: 'en',
+    });
+  });
+
   it('returns an empty array for valid empty stored data', () => {
     const books = loadBooksFromStorage(
       storageWithItem(JSON.stringify({ schemaVersion: 2, books: [] })),
@@ -89,6 +120,17 @@ describe('storage', () => {
 
   it('returns null when no stored data exists', () => {
     expect(loadBooksFromStorage(storageWithItem(null))).toBeNull();
+  });
+
+  it('distinguishes missing, valid, and invalid stored data', () => {
+    expect(loadBooksFromStorageResult(storageWithItem(null))).toEqual({ status: 'missing' });
+    expect(loadBooksFromStorageResult(storageWithItem('{"schemaVersion":2,"books":[]}'))).toEqual({
+      status: 'valid',
+      books: [],
+    });
+    expect(loadBooksFromStorageResult(storageWithItem('{"items":[]}'))).toMatchObject({
+      status: 'invalid',
+    });
   });
 
   it('preserves corrected metadata source and id shapes', () => {
