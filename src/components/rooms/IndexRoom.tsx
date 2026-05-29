@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import type { Book, Genre } from '../../types';
 import type { Recommendation } from '../../data/recommendations';
 import { getArchiveStats, getIndexStats } from '../../lib/bookStats';
-import { getPrimaryCoverUrl } from '../../utils/cover';
+import { getCoverCandidates } from '../../utils/cover';
 import { GenreTag, S, StarRating } from '../../App';
 
 type RoomView = 'archive' | 'reading' | 'discovery';
@@ -101,7 +102,7 @@ function SectionTitle({ title, action, onAction }: { title: string; action: stri
 }
 
 function ReadingPreview({ book, onClick }: { book: Book; onClick: () => void }) {
-  const cover = getPrimaryCoverUrl(book);
+  const covers = getCoverCandidates(book);
   const pct = getProgress(book);
 
   return (
@@ -110,7 +111,7 @@ function ReadingPreview({ book, onClick }: { book: Book; onClick: () => void }) 
       onClick={onClick}
       style={{ width: '100%', border: 'none', textAlign: 'left', background: '#FFFFFF', borderRadius: 12, padding: 16, display: 'flex', gap: 16, alignItems: 'center', boxShadow: '0px 8px 24px rgba(27,28,25,0.06)', cursor: 'pointer', fontFamily: "'Manrope', sans-serif" }}
     >
-      <Cover title={book.title} url={cover} />
+      <Cover title={book.title} urls={covers} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: "'Newsreader', serif", fontSize: 17, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.25 }}>{book.title}</div>
         <div style={{ fontSize: 12, color: '#6B6B6B', marginTop: 2, marginBottom: 10 }}>{book.author}</div>
@@ -129,7 +130,7 @@ function RecommendationPreview({ rec }: { rec: Recommendation }) {
 
   return (
     <div style={{ background: '#FFFFFF', borderRadius: 12, padding: 16, display: 'flex', gap: 14, boxShadow: '0px 8px 24px rgba(27,28,25,0.06)' }}>
-      <Cover title={rec.title} url={cover} />
+      <Cover title={rec.title} urls={cover ? [cover] : []} />
       <div style={{ minWidth: 0 }}>
         <div style={{ fontFamily: "'Newsreader', serif", fontSize: 16, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.25 }}>{rec.title}</div>
         <div style={{ fontSize: 12, color: '#6B6B6B', marginTop: 3 }}>{rec.author}{rec.pages ? ` / ${rec.pages} pages` : ''}</div>
@@ -160,11 +161,14 @@ function EmptyPanel({ title, text }: { title: string; text: string }) {
   );
 }
 
-function Cover({ title, url }: { title: string; url: string | null }) {
+function Cover({ title, urls }: { title: string; urls: string[] }) {
+  const [failedUrls, setFailedUrls] = useState<string[]>([]);
+  const url = urls.find(candidate => !failedUrls.includes(candidate)) ?? null;
+
   return (
     <div style={{ width: 58, flexShrink: 0, aspectRatio: '2/3', borderRadius: 8, overflow: 'hidden', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)', boxShadow: '2px 4px 14px rgba(27,28,25,0.14)' }}>
       {url
-        ? <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        ? <img src={url} alt="" onError={() => setFailedUrls(prev => prev.includes(url) ? prev : [...prev, url])} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8, color: '#006241', fontFamily: "'Newsreader', serif", fontSize: 10, textAlign: 'center', lineHeight: 1.4 }}>{title}</div>
       }
     </div>

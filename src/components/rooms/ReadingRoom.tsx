@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import type { Book } from '../../types';
 import { getReadingStats } from '../../lib/bookStats';
-import { getPrimaryCoverUrl } from '../../utils/cover';
+import { getCoverCandidates } from '../../utils/cover';
 import { GenreTag, S } from '../../App';
 
 interface ReadingRoomProps {
@@ -51,7 +52,8 @@ export default function ReadingRoom({ books, onSelectBook }: ReadingRoomProps) {
 }
 
 function ReadingBookRow({ book, onClick }: { book: Book; onClick: () => void }) {
-  const cover = getPrimaryCoverUrl(book);
+  const [failedCoverUrls, setFailedCoverUrls] = useState<string[]>([]);
+  const cover = getCoverCandidates(book, failedCoverUrls)[0] ?? null;
   const progress = getProgress(book);
   const pagesLeft = book.pageCount ? Math.max(0, book.pageCount - (book.pagesRead ?? 0)) : null;
 
@@ -63,7 +65,7 @@ function ReadingBookRow({ book, onClick }: { book: Book; onClick: () => void }) 
     >
       <div style={{ width: 62, flexShrink: 0, aspectRatio: '2/3', borderRadius: 8, overflow: 'hidden', background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)', boxShadow: '2px 4px 14px rgba(27,28,25,0.14)' }}>
         {cover
-          ? <img src={cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          ? <img src={cover} alt="" onError={() => setFailedCoverUrls(prev => prev.includes(cover) ? prev : [...prev, cover])} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8, color: '#006241', fontFamily: "'Newsreader', serif", fontSize: 10, textAlign: 'center', lineHeight: 1.4 }}>{book.title}</div>
         }
       </div>

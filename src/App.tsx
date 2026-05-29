@@ -15,7 +15,7 @@ import ArchiveRoom from './components/rooms/ArchiveRoom';
 
 type View = 'index' | 'reading' | 'archive' | 'discovery';
 type FilterStatus = Status | 'All';
-type InitialData = { books: Book[]; skipInitialSave: boolean };
+type InitialData = { books: Book[]; canPersistInitialBooks: boolean };
 
 const USER_KEY = 'bookshelf_user';
 
@@ -42,8 +42,8 @@ function saveUser(u: UserProfile) {
 
 function loadData(): InitialData {
   const storedBooks = loadBooksFromStorageResult();
-  if (storedBooks.status === 'valid') return { books: storedBooks.books, skipInitialSave: false };
-  return { books: SEED_BOOKS, skipInitialSave: storedBooks.status === 'invalid' };
+  if (storedBooks.status === 'valid') return { books: storedBooks.books, canPersistInitialBooks: true };
+  return { books: SEED_BOOKS, canPersistInitialBooks: storedBooks.status === 'missing' };
 }
 
 function saveData(books: Book[]) {
@@ -64,7 +64,7 @@ export default function App() {
   const [user, setUser] = useState<UserProfile>(loadUser);
   const [editingUser, setEditingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const skipInitialBooksSaveRef = useRef(initialData.skipInitialSave);
+  const canPersistBooksRef = useRef(initialData.canPersistInitialBooks);
 
   function updateUser(u: UserProfile) {
     setUser(u);
@@ -73,10 +73,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (skipInitialBooksSaveRef.current) {
-      skipInitialBooksSaveRef.current = false;
-      return;
-    }
+    if (!canPersistBooksRef.current) return;
     saveData(books);
   }, [books]);
 
@@ -96,7 +93,12 @@ export default function App() {
 
   const currentlyReading = books.filter(b => b.status === 'Reading');
 
+  function allowBooksPersistence() {
+    canPersistBooksRef.current = true;
+  }
+
   function addOrUpdateBook(book: Book) {
+    allowBooksPersistence();
     setBooks(prev => {
       const idx = prev.findIndex(b => b.id === book.id);
       if (idx >= 0) { const next = [...prev]; next[idx] = book; return next; }
@@ -107,6 +109,7 @@ export default function App() {
   }
 
   function deleteBook(id: string) {
+    allowBooksPersistence();
     setBooks(prev => prev.filter(b => b.id !== id));
     setSelectedBook(null);
   }
@@ -126,6 +129,7 @@ export default function App() {
       try {
         const result = ev.target?.result;
         if (typeof result !== 'string') throw new Error('Import file must be text.');
+        allowBooksPersistence();
         setBooks(parseImportedData(result).books);
       } catch { alert("Could not read file."); }
     };
@@ -138,6 +142,7 @@ export default function App() {
       status: 'Want to Read', genres: rec.genres as Genre[], tropes: rec.tropes,
       pageCount: rec.pages, seriesType: 'Standalone',
     };
+    allowBooksPersistence();
     setBooks(prev => [...prev, newBook]);
   }
 
