@@ -3,7 +3,8 @@ import type { Book, Genre } from '../../types';
 import type { Recommendation } from '../../data/recommendations';
 import { getArchiveStats, getIndexStats } from '../../lib/bookStats';
 import { getCoverCandidates } from '../../utils/cover';
-import { GenreTag, S, StarRating } from '../../App';
+import { S } from '../sharedStyles';
+import { GenreTag, StarRating } from '../sharedUi';
 
 type RoomView = 'archive' | 'reading' | 'discovery';
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Book, Status, Format, SeriesType, Genre, MetadataSourceName } from '../types';
-import { GenreTag } from '../App';
+import { GenreTag } from './sharedUi';
 
 const STATUSES: Status[] = ['Completed','Reading','Want to Read','DNF'];
 const FORMATS: Format[] = ['eBook','Audio Book','Print','Book & Audio'];

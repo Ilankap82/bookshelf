@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
-import { GenreTag, StarRating } from '../App';
+import { GenreTag, StarRating } from './sharedUi';
 import { fetchCoverUrl, getCoverCandidates } from '../utils/cover';
 
 type BookMetadata = Book & {

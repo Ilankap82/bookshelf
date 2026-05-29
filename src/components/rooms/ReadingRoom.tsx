@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { Book } from '../../types';
 import { getReadingStats } from '../../lib/bookStats';
 import { getCoverCandidates } from '../../utils/cover';
-import { GenreTag, S } from '../../App';
+import { S } from '../sharedStyles';
+import { GenreTag } from '../sharedUi';
 
 interface ReadingRoomProps {
   books: Book[];

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { Book } from '../types';
 import type { Recommendation } from '../data/recommendations';
-import { FilterChip, GenreTag } from '../App';
-import { S } from '../App';
+import { S } from './sharedStyles';
+import { FilterChip, GenreTag } from './sharedUi';
 import { getDiscoveryStats } from '../lib/bookStats';
 
 const MOODS = ['All', 'Cozy', 'Page-turner', 'Emotional', 'Epic & long', 'Light read', 'Dark & complex'];

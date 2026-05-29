@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { Book, Format, Genre, Status } from '../../types';
 import BookCard from '../BookCard';
-import { FilterChip, S } from '../../App';
+import { S } from '../sharedStyles';
+import { FilterChip } from '../sharedUi';
 
 type FilterStatus = Status | 'All';
 
