@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Book, Status, Format, SeriesType, Genre } from '../types';
-import { GenreTag } from '../App';
+import type { Book, Status, Format, SeriesType, Genre, MetadataSourceName } from '../types';
+import { GenreTag } from './sharedUi';
 
 const STATUSES: Status[] = ['Completed','Reading','Want to Read','DNF'];
 const FORMATS: Format[] = ['eBook','Audio Book','Print','Book & Audio'];
@@ -8,13 +8,22 @@ const SERIES_TYPES: SeriesType[] = ['Standalone','Series','Trilogy','Duology','S
 const RATINGS = [0.5,1,1.5,2,2.5,3,3.5,4,4.5,5];
 const ALL_GENRES: Genre[] = ['Fantasy','Romance','Sci-Fi','Fiction','Non-Fiction','Biography','Mystery','Western','War','Young Adult','Thriller','Historical'];
 
-export default function BookForm({ book, onSave, onClose }: { book: Book | null; onSave: (b: Book) => void; onClose: () => void; }) {
-  const [form, setForm] = useState<Partial<Book>>(book || {
+type EditableBook = Book & {
+  subtitle?: string;
+  description?: string;
+  publishedYear?: number;
+  publisher?: string;
+  language?: string;
+  sourceName?: MetadataSourceName;
+};
+
+export default function BookForm({ book, onSave, onClose, isNew = false }: { book: Book | null; onSave: (b: Book) => void; onClose: () => void; isNew?: boolean; }) {
+  const [form, setForm] = useState<Partial<EditableBook>>((book as EditableBook | null) || {
     status: 'Want to Read', genres: [], tropes: [], seriesType: 'Standalone',
   });
   const [tropeInput, setTropeInput] = useState('');
 
-  function set(key: keyof Book, val: any) { setForm(prev => ({ ...prev, [key]: val })); }
+  function set<K extends keyof EditableBook>(key: K, val: EditableBook[K] | undefined) { setForm(prev => ({ ...prev, [key]: val })); }
 
   function toggleGenre(g: Genre) {
     set('genres', form.genres?.includes(g)
@@ -32,16 +41,27 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
 
   function handleSave() {
     if (!form.title || !form.author) return alert('Title and author are required.');
-    const saved: Book = {
+    const saved: EditableBook = {
       id: form.id || Date.now().toString(),
       title: form.title!, author: form.author!, status: form.status || 'Want to Read',
       genres: form.genres || [], tropes: form.tropes || [],
       startDate: form.startDate, finishDate: form.finishDate,
-      pageCount: form.pageCount ? Number(form.pageCount) : undefined,
+      pageCount: form.pageCount,
       rating: form.rating, format: form.format, seriesName: form.seriesName,
-      seriesType: form.seriesType, seriesPosition: form.seriesPosition ? Number(form.seriesPosition) : undefined,
+      seriesType: form.seriesType, seriesPosition: form.seriesPosition,
       notes: form.notes,
-      pagesRead: form.pagesRead ? Number(form.pagesRead) : undefined,
+      coverUrl: form.coverUrl,
+      coverCandidates: form.coverCandidates,
+      metadataStatus: form.metadataStatus === 'candidate' ? 'reviewed' : form.metadataStatus,
+      metadataSources: form.metadataSources,
+      sourceIds: form.sourceIds,
+      sourceName: form.sourceName,
+      subtitle: form.subtitle,
+      description: form.description,
+      publishedYear: form.publishedYear,
+      publisher: form.publisher,
+      language: form.language,
+      pagesRead: form.pagesRead,
     };
     onSave(saved);
   }
@@ -59,7 +79,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
         {/* Header */}
         <div style={{ padding: '20px 28px', borderBottom: '1px solid rgba(45,45,45,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ fontFamily: "'Newsreader', serif", fontStyle: 'italic' as const, fontSize: 20, fontWeight: 600, color: '#2D2D2D' }}>
-            {book ? 'Edit Book' : 'Add to Archive'}
+            {book && !isNew ? 'Edit Book' : 'Add to Archive'}
           </div>
           <button
             onClick={onClose}
@@ -81,6 +101,14 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
 
             <Field label="Author *">
               <input style={inputStyle} value={form.author || ''} onChange={e => set('author', e.target.value)} placeholder="Author name" />
+            </Field>
+
+            <Field label="Subtitle">
+              <input style={inputStyle} value={form.subtitle || ''} onChange={e => set('subtitle', e.target.value || undefined)} placeholder="Optional subtitle" />
+            </Field>
+
+            <Field label="Cover URL">
+              <input style={inputStyle} value={form.coverUrl || ''} onChange={e => set('coverUrl', e.target.value || undefined)} placeholder="https://..." />
             </Field>
 
             <Field label="Status">
@@ -106,7 +134,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <Field label="Page Count">
-                <input style={inputStyle} type="number" value={form.pageCount || ''} onChange={e => set('pageCount', e.target.value)} placeholder="e.g. 416" />
+                <input style={inputStyle} type="number" value={form.pageCount || ''} onChange={e => set('pageCount', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 416" />
               </Field>
               <Field label="Rating">
                 <select style={inputStyle} value={form.rating || ''} onChange={e => set('rating', e.target.value ? Number(e.target.value) : undefined)}>
@@ -115,6 +143,19 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
                 </select>
               </Field>
             </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Field label="Published Year">
+                <input style={inputStyle} type="number" value={form.publishedYear || ''} onChange={e => set('publishedYear', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 2024" />
+              </Field>
+              <Field label="Language">
+                <input style={inputStyle} value={form.language || ''} onChange={e => set('language', e.target.value || undefined)} placeholder="e.g. en, he" />
+              </Field>
+            </div>
+
+            <Field label="Publisher">
+              <input style={inputStyle} value={form.publisher || ''} onChange={e => set('publisher', e.target.value || undefined)} placeholder="Publisher name" />
+            </Field>
 
             {form.status === 'Reading' && (
               <Field label="Pages Read">
@@ -152,7 +193,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
               {form.seriesType !== 'Standalone' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, marginTop: 8 }}>
                   <input style={inputStyle} value={form.seriesName || ''} onChange={e => set('seriesName', e.target.value)} placeholder="Series name" />
-                  <input style={inputStyle} type="number" value={form.seriesPosition || ''} onChange={e => set('seriesPosition', e.target.value)} placeholder="#" min={1} />
+                  <input style={inputStyle} type="number" value={form.seriesPosition || ''} onChange={e => set('seriesPosition', e.target.value ? Number(e.target.value) : undefined)} placeholder="#" min={1} />
                 </div>
               )}
             </Field>
@@ -178,7 +219,16 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
               </div>
             </Field>
 
-            <Field label="Notes">
+            <Field label="Description/Notes">
+              <textarea
+                style={{ ...inputStyle, height: 96, resize: 'vertical' as const }}
+                value={form.description || ''}
+                onChange={e => set('description', e.target.value || undefined)}
+                placeholder="Publisher description or summary..."
+              />
+            </Field>
+
+            <Field label="Personal Notes">
               <textarea
                 style={{ ...inputStyle, height: 80, resize: 'vertical' as const }}
                 value={form.notes || ''}
@@ -259,7 +309,7 @@ export default function BookForm({ book, onSave, onClose }: { book: Book | null;
             onClick={handleSave}
             style={{ flex: 1, padding: '11px 0', borderRadius: 8, fontSize: 14, fontFamily: "'Manrope', sans-serif", cursor: 'pointer', border: 'none', fontWeight: 600, background: 'linear-gradient(160deg, #067D55 0%, #006241 100%)', color: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,98,65,0.25)' }}
           >
-            {book ? 'Save Changes' : 'Add to Archive'}
+            {book && !isNew ? 'Save Changes' : 'Add to Archive'}
           </button>
           <button
             onClick={onClose}

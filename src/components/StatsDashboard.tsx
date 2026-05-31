@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Book } from '../types';
-import { S } from '../App';
+import { S } from './sharedStyles';
 
 // Milestone definitions
 const MILESTONES = [
@@ -182,7 +182,7 @@ export default function StatsDashboard({ books }: { books: Book[] }) {
   );
 }
 
-function StatCard({ label, value, sub, isText }: { label: string; value: any; sub?: string; isText?: boolean }) {
+function StatCard({ label, value, sub, isText }: { label: string; value: React.ReactNode; sub?: string; isText?: boolean }) {
   return (
     <div style={{ background: '#FFFFFF', borderRadius: 10, padding: '20px 20px 18px', position: 'relative', overflow: 'hidden', boxShadow: '0px 8px 24px rgba(27,28,25,0.06)' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#067D55,#006241)' }} />

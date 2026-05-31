@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { Book } from '../types';
 import type { Recommendation } from '../data/recommendations';
-import { FilterChip, GenreTag } from '../App';
-import { S } from '../App';
+import { S } from './sharedStyles';
+import { FilterChip, GenreTag } from './sharedUi';
+import { getDiscoveryStats } from '../lib/bookStats';
 
 const MOODS = ['All', 'Cozy', 'Page-turner', 'Emotional', 'Epic & long', 'Light read', 'Dark & complex'];
 
@@ -32,6 +33,9 @@ export default function RecommendationsView({ recommendations, books, onAddToLis
 }) {
   const [mood, setMood] = useState('All');
   const alreadyHave = new Set(books.map(b => b.title.toLowerCase()));
+  const discoveryStats = getDiscoveryStats(books);
+  const favoriteGenres = topValues(books.filter(b => b.status === 'Completed').flatMap(b => b.genres), 3);
+  const favoriteTropes = topValues(books.filter(b => b.status === 'Completed').flatMap(b => b.tropes), 3);
 
   const filtered = recommendations.filter(r => {
     if (alreadyHave.has(r.title.toLowerCase())) return false;
@@ -49,6 +53,14 @@ export default function RecommendationsView({ recommendations, books, onAddToLis
       </div>
 
       <div style={S.content}>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const, marginBottom: 18 }}>
+          <span style={{ fontSize: 11, color: '#6B6B6B', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1 }}>Taste signals</span>
+          <Signal label="Genres" value={favoriteGenres.length ? favoriteGenres.join(', ') : 'Complete books to tune genres'} />
+          <Signal label="Tropes" value={favoriteTropes.length ? favoriteTropes.join(', ') : 'Add tropes to sharpen matches'} />
+          <Signal label="Want to read" value={`${discoveryStats.wantToReadCount} queued`} />
+          {discoveryStats.underReadGenres[0] && <Signal label="Explore" value={discoveryStats.underReadGenres[0]} />}
+        </div>
 
         {/* Quote of the Day hero */}
         <div style={{
@@ -117,6 +129,28 @@ export default function RecommendationsView({ recommendations, books, onAddToLis
         </div>
       </div>
     </>
+  );
+}
+
+function topValues(values: string[], limit: number): string[] {
+  const counts = new Map<string, number>();
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+
+  return Array.from(counts.entries())
+    .sort((a, b) => {
+      const countDifference = b[1] - a[1];
+      return countDifference || a[0].localeCompare(b[0]);
+    })
+    .slice(0, limit)
+    .map(([value]) => value);
+}
+
+function Signal({ label, value }: { label: string; value: string }) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#FFFFFF', border: '1px solid rgba(45,45,45,0.08)', borderRadius: 10, padding: '5px 9px', boxShadow: '0 4px 14px rgba(27,28,25,0.04)' }}>
+      <span style={{ fontSize: 10, color: '#6B6B6B', fontWeight: 700 }}>{label}</span>
+      <span style={{ fontSize: 11, color: '#2D2D2D' }}>{value}</span>
+    </span>
   );
 }
 

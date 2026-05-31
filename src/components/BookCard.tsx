@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
-import { GenreTag, StarRating } from '../App';
-import { fetchCoverUrl, isBadCoverUrl } from '../utils/cover';
+import { GenreTag, StarRating } from './sharedUi';
+import { fetchCoverUrl, getCoverCandidates } from '../utils/cover';
 
 // Light-theme placeholder palette — tonal, editorial
 const GENRE_PALETTE: Record<string, { bg: string; accent: string; text: string }> = {
@@ -22,39 +22,39 @@ const GENRE_PALETTE: Record<string, { bg: string; accent: string; text: string }
 const DEFAULT_PALETTE = { bg: 'linear-gradient(160deg,#F1F1ED 0%,#E8E8E0 100%)', accent: '#006241', text: '#065F46' };
 
 export default function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
-  const [cover, setCover] = useState<string | null>(book.coverUrl || null);
-  const [coverError, setCoverError] = useState(false);
-  const [fetchedFallback, setFetchedFallback] = useState(false);
+  const [fetchedCover, setFetchedCover] = useState<{ bookId: string; url: string } | null>(null);
+  const [failedCovers, setFailedCovers] = useState<{ bookId: string; urls: string[] } | null>(null);
   const [hover, setHover] = useState(false);
   const palette = GENRE_PALETTE[book.genres[0]] || DEFAULT_PALETTE;
+  const failedUrls = failedCovers?.bookId === book.id ? failedCovers.urls : [];
+  const coverCandidates = getCoverCandidates(book, failedUrls);
+  const candidateCover = coverCandidates[0] ?? null;
+  const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
+  const cover = candidateCover || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
 
   useEffect(() => {
-    setCoverError(false);
-    setFetchedFallback(false);
-    const storedUrl = book.coverUrl;
-    if (!storedUrl || isBadCoverUrl(storedUrl)) {
-      // No cover or known-bad stored URL — fetch fresh
-      fetchCoverUrl(book.title, book.author).then(url => { if (url) setCover(url); });
-    } else {
-      setCover(storedUrl);
-    }
-  }, [book.id]);
+    if (candidateCover) return;
 
-  // When the stored URL 404s, try fetching a fresh one from the API
+    let cancelled = false;
+    fetchCoverUrl(book.title, book.author).then(url => {
+      if (!cancelled && url) setFetchedCover({ bookId: book.id, url });
+    });
+
+    return () => { cancelled = true; };
+  }, [book.id, book.title, book.author, candidateCover]);
+
   function handleCoverError() {
-    if (!fetchedFallback) {
-      setFetchedFallback(true);
-      fetchCoverUrl(book.title, book.author).then(url => {
-        if (url && url !== cover) {
-          setCover(url);
-          setCoverError(false);
-        } else {
-          setCoverError(true);
-        }
+    if (cover) {
+      setFailedCovers(prev => {
+        const urls = prev?.bookId === book.id ? prev.urls : [];
+        return urls.includes(cover) ? prev : { bookId: book.id, urls: [...urls, cover] };
       });
-    } else {
-      setCoverError(true);
     }
+    if (coverCandidates.length > 1 || fetchedFallback) return;
+
+    fetchCoverUrl(book.title, book.author).then(url => {
+      if (url && url !== cover) setFetchedCover({ bookId: book.id, url });
+    });
   }
 
   const statusDot = {
@@ -85,7 +85,7 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
     >
       {/* Cover */}
       <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative' }}>
-        {cover && !coverError ? (
+        {cover ? (
           <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             onError={handleCoverError} />
         ) : (

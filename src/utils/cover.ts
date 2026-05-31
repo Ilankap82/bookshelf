@@ -3,6 +3,8 @@
  * Uses a scored matching approach to find the best result for a given title+author.
  */
 
+import type { Book } from '../types';
+
 // Known cover IDs that return placeholder/wrong images on OpenLibrary
 const KNOWN_BAD_IDS = new Set([
   '8743161',   // Returns "My Dog, Bob" — wrong book
@@ -13,6 +15,25 @@ export function isBadCoverUrl(url: string): boolean {
   const match = url.match(/\/b\/id\/(\d+)-/);
   if (match) return KNOWN_BAD_IDS.has(match[1]);
   return false;
+}
+
+export function cleanCoverCandidates(candidates: Array<string | undefined | null>): string[] {
+  return Array.from(new Set(candidates.filter((candidate): candidate is string => {
+    return candidate !== undefined && candidate !== null && candidate !== '' && !isBadCoverUrl(candidate);
+  })));
+}
+
+export function getPrimaryCoverUrl(book: Pick<Book, 'coverUrl' | 'coverCandidates'>): string | null {
+  if (book.coverUrl && !isBadCoverUrl(book.coverUrl)) return book.coverUrl;
+  return cleanCoverCandidates(book.coverCandidates ?? [])[0] ?? null;
+}
+
+export function getCoverCandidates(
+  book: Pick<Book, 'coverUrl' | 'coverCandidates'>,
+  failedUrls: string[] = [],
+): string[] {
+  const candidates = cleanCoverCandidates([book.coverUrl, ...(book.coverCandidates ?? [])]);
+  return candidates.filter(candidate => !failedUrls.includes(candidate));
 }
 
 function normalize(s: string): string {
