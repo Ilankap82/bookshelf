@@ -1,4 +1,5 @@
 import type { Book, MetadataStatus } from '../../types';
+import { getPrimaryCoverUrl } from '../../utils/cover';
 
 export type QualityTone = 'reviewed' | 'candidate' | 'manual' | 'care';
 
@@ -22,7 +23,7 @@ export function metadataQualityLabel(status?: MetadataStatus): string {
 }
 
 export function hasReliableCover(book: Book): boolean {
-  return Boolean(book.coverUrl || (book.coverCandidates && book.coverCandidates.length > 0));
+  return getPrimaryCoverUrl(book) !== null;
 }
 
 export function getBookQualityState(book: Book): BookQualityState {
@@ -35,13 +36,15 @@ export function getBookQualityState(book: Book): BookQualityState {
 export function getArchiveQualitySummary(books: Book[]): ArchiveQualitySummary {
   return books.reduce<ArchiveQualitySummary>(
     (summary, book) => {
-      if (!hasReliableCover(book)) summary.missingCover += 1;
+      const hasCover = hasReliableCover(book);
+
+      if (!hasCover) summary.missingCover += 1;
 
       if (book.metadataStatus === 'reviewed') summary.reviewed += 1;
       else if (book.metadataStatus === 'candidate') summary.candidate += 1;
       else summary.manual += 1;
 
-      if (!hasReliableCover(book) || book.metadataStatus !== 'reviewed') summary.needsCare += 1;
+      if (!hasCover || book.metadataStatus !== 'reviewed') summary.needsCare += 1;
       return summary;
     },
     { reviewed: 0, candidate: 0, manual: 0, missingCover: 0, needsCare: 0 },

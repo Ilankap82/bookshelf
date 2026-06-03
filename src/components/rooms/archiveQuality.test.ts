@@ -3,6 +3,7 @@ import type { Book } from '../../types';
 import {
   getArchiveQualitySummary,
   getBookQualityState,
+  hasReliableCover,
   metadataQualityLabel,
 } from './archiveQuality';
 
@@ -31,6 +32,22 @@ describe('archive quality helpers', () => {
     });
   });
 
+  it('treats empty and known placeholder cover data as missing cover', () => {
+    expect(hasReliableCover({
+      ...baseBook,
+      coverUrl: '',
+      coverCandidates: ['https://covers.openlibrary.org/b/id/12468631-M.jpg'],
+    })).toBe(false);
+    expect(getBookQualityState({
+      ...baseBook,
+      coverUrl: 'https://covers.openlibrary.org/b/id/8743161-M.jpg',
+      coverCandidates: [''],
+    })).toEqual({
+      tone: 'care',
+      label: 'Missing cover',
+    });
+  });
+
   it('detects manual, candidate, and reviewed metadata states', () => {
     expect(getBookQualityState({ ...baseBook, coverUrl: 'cover.jpg', metadataStatus: 'manual' })).toEqual({
       tone: 'manual',
@@ -52,14 +69,21 @@ describe('archive quality helpers', () => {
       { ...baseBook, id: '2', metadataStatus: 'manual' },
       { ...baseBook, id: '3', coverUrl: 'cover.jpg', metadataStatus: 'candidate' },
       { ...baseBook, id: '4', coverCandidates: ['cover-a.jpg'], metadataStatus: 'manual' },
+      {
+        ...baseBook,
+        id: '5',
+        coverUrl: 'https://covers.openlibrary.org/b/id/12468631-M.jpg',
+        coverCandidates: [''],
+        metadataStatus: 'reviewed',
+      },
     ];
 
     expect(getArchiveQualitySummary(books)).toEqual({
-      reviewed: 1,
+      reviewed: 2,
       candidate: 1,
       manual: 2,
-      missingCover: 1,
-      needsCare: 3,
+      missingCover: 2,
+      needsCare: 4,
     });
   });
 });
