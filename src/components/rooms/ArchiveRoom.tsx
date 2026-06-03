@@ -12,6 +12,7 @@ type FilterStatus = Status | 'All';
 
 interface ArchiveRoomProps {
   books: Book[];
+  allBooks: Book[];
   search: string;
   onSearch: (search: string) => void;
   filterGenre: Genre | 'All';
@@ -33,6 +34,7 @@ const allFormats: Array<Format | 'All'> = ['All','eBook','Audio Book','Print','B
 
 export default function ArchiveRoom({
   books,
+  allBooks,
   search,
   onSearch,
   filterGenre,
@@ -51,7 +53,7 @@ export default function ArchiveRoom({
   const reading = books.filter(book => book.status === 'Reading');
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'covers' | 'ledger'>('covers');
-  const qualitySummary = getArchiveQualitySummary(books);
+  const qualitySummary = getArchiveQualitySummary(allBooks);
   const activeFilterCount = (filterGenre !== 'All' ? 1 : 0) + (filterFormat !== 'All' ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterStatus !== 'All' ? 1 : 0);
 
   function clearFilters() {

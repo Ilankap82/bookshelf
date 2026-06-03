@@ -184,6 +184,7 @@ export default function App() {
         {view === 'archive' && (
           <ArchiveRoom
             books={filteredBooks}
+            allBooks={books}
             search={search}
             onSearch={setSearch}
             filterGenre={filterGenre}
