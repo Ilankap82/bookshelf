@@ -31,7 +31,7 @@ describe('archive quality helpers', () => {
     });
   });
 
-  it('detects manual and candidate metadata states', () => {
+  it('detects manual, candidate, and reviewed metadata states', () => {
     expect(getBookQualityState({ ...baseBook, coverUrl: 'cover.jpg', metadataStatus: 'manual' })).toEqual({
       tone: 'manual',
       label: 'Manual',
@@ -39,6 +39,10 @@ describe('archive quality helpers', () => {
     expect(getBookQualityState({ ...baseBook, coverUrl: 'cover.jpg', metadataStatus: 'candidate' })).toEqual({
       tone: 'candidate',
       label: 'Candidate',
+    });
+    expect(getBookQualityState({ ...baseBook, coverUrl: 'cover.jpg', metadataStatus: 'reviewed' })).toEqual({
+      tone: 'reviewed',
+      label: 'Reviewed',
     });
   });
 
