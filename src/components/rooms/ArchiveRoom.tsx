@@ -140,8 +140,8 @@ export default function ArchiveRoom({
               count={books.length}
               action={(
                 <div style={{ display: 'flex', gap: 4, padding: 3, border: `1px solid ${archiveTone.border}`, borderRadius: 999, background: 'rgba(240,238,232,0.72)' }}>
-                  <button style={viewToggleStyle(viewMode === 'covers')} onClick={() => setViewMode('covers')}>Covers</button>
-                  <button style={viewToggleStyle(viewMode === 'ledger')} onClick={() => setViewMode('ledger')}>Ledger</button>
+                  <button aria-pressed={viewMode === 'covers'} style={viewToggleStyle(viewMode === 'covers')} onClick={() => setViewMode('covers')}>Covers</button>
+                  <button aria-pressed={viewMode === 'ledger'} style={viewToggleStyle(viewMode === 'ledger')} onClick={() => setViewMode('ledger')}>Ledger</button>
                 </div>
               )}
             />
@@ -193,7 +193,7 @@ function ArchiveFilterPopover({
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={onClose} />
-      <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: archiveTone.surface, border: `1px solid ${archiveTone.border}`, borderRadius: 16, boxShadow: '0 18px 46px rgba(44,36,24,0.14)', padding: '18px 20px', width: 320 }}>
+      <div className="archive-filter-popover" style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 50, background: archiveTone.surface, border: `1px solid ${archiveTone.border}`, borderRadius: 16, boxShadow: '0 18px 46px rgba(44,36,24,0.14)', padding: '18px 20px', width: 320 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: archiveTone.faint }}>Filters</span>
           {activeFilterCount > 0 && <button onClick={clearFilters} style={{ fontSize: 11, color: archiveTone.green, cursor: 'pointer', border: 'none', background: 'transparent', padding: 0 }}>Clear all</button>}
@@ -265,9 +265,9 @@ function ArchiveLedger({ books, onSelect }: { books: Book[]; onSelect: (book: Bo
   if (books.length === 0) return <ArchiveEmptyState />;
 
   return (
-    <div style={{ display: 'grid', gap: 6 }}>
+    <div className="archive-ledger-list" style={{ display: 'grid', gap: 6 }}>
       {books.map(book => (
-        <button key={book.id} onClick={() => onSelect(book)} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) 110px 112px 76px', gap: 12, alignItems: 'center', width: '100%', padding: '12px 14px', border: `1px solid ${archiveTone.border}`, borderRadius: 14, background: 'rgba(255,253,250,0.62)', cursor: 'pointer', textAlign: 'left' }}>
+        <button className="archive-ledger-row" key={book.id} onClick={() => onSelect(book)} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) 110px 112px 76px', gap: 12, alignItems: 'center', width: '100%', padding: '12px 14px', border: `1px solid ${archiveTone.border}`, borderRadius: 14, background: 'rgba(255,253,250,0.62)', cursor: 'pointer', textAlign: 'left' }}>
           <span style={{ minWidth: 0 }}>
             <span style={{ display: 'block', color: archiveTone.ink, fontSize: 14, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{book.title}</span>
             <span style={{ display: 'block', color: archiveTone.faint, fontSize: 12, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{book.author}</span>

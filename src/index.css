@@ -58,6 +58,57 @@
   .index-room-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .archive-room {
+    padding: 18px !important;
+  }
+
+  .archive-header {
+    grid-template-columns: 1fr !important;
+  }
+
+  .archive-header h1 {
+    font-size: 34px !important;
+  }
+
+  .archive-stat-strip {
+    min-width: 0 !important;
+    width: 100% !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .archive-controls {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .archive-controls > * {
+    width: 100% !important;
+  }
+
+  .archive-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .archive-shelf-grid {
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)) !important;
+  }
+
+  .archive-filter-popover {
+    width: calc(100vw - 32px) !important;
+    max-width: 320px !important;
+    right: auto !important;
+    left: 0 !important;
+  }
+
+  .archive-ledger-list {
+    overflow-x: auto !important;
+  }
+
+  .archive-ledger-row {
+    min-width: 560px !important;
+  }
 }
 
 *, *::before, *::after {
