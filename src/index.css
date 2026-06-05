@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.archive-ledger-list {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.archive-ledger-row {
+  min-width: 560px;
+}
+
 @media (max-width: 720px) {
   .book-tracker-shell {
     flex-direction: column !important;
