@@ -128,7 +128,7 @@ export default function ArchiveRoom({
           {reading.length > 0 && (
             <section style={{ ...archiveStyles.surface, padding: 22 }}>
               <ArchiveSectionHeader title="Current stack" count={reading.length} />
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
+              <div className="archive-current-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
                 {reading.slice(0, 3).map(book => <BookCard key={book.id} book={book} onClick={() => onSelectBook(book)} variant="archiveFeature" />)}
               </div>
             </section>
