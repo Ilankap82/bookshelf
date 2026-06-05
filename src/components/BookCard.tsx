@@ -21,7 +21,17 @@ const GENRE_PALETTE: Record<string, { bg: string; accent: string; text: string }
 };
 const DEFAULT_PALETTE = { bg: 'linear-gradient(160deg,#F1F1ED 0%,#E8E8E0 100%)', accent: '#006241', text: '#065F46' };
 
-export default function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
+type BookCardVariant = 'default' | 'archiveShelf' | 'archiveFeature';
+
+export default function BookCard({
+  book,
+  onClick,
+  variant = 'default',
+}: {
+  book: Book;
+  onClick: () => void;
+  variant?: BookCardVariant;
+}) {
   const [fetchedCover, setFetchedCover] = useState<{ bookId: string; url: string } | null>(null);
   const [failedCovers, setFailedCovers] = useState<{ bookId: string; urls: string[] } | null>(null);
   const [hover, setHover] = useState(false);
@@ -31,6 +41,10 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
   const candidateCover = coverCandidates[0] ?? null;
   const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
   const cover = candidateCover || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
+  const isArchiveVariant = variant !== 'default';
+  const isFeature = variant === 'archiveFeature';
+  const cardRadius = isArchiveVariant ? 24 : 10;
+  const coverRadius = isArchiveVariant ? '5px 13px 13px 5px' : 0;
 
   useEffect(() => {
     if (candidateCover) return;
@@ -64,27 +78,9 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
     DNF:            '#DC2626',
   }[book.status] || '#A8A8A0';
 
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: '#FFFFFF',
-        borderRadius: 10,
-        overflow: 'hidden',
-        cursor: 'pointer',
-        transform: hover ? 'translateY(-3px)' : 'none',
-        boxShadow: hover
-          ? '0px 16px 40px rgba(27,28,25,0.12)'
-          : book.status === 'Reading'
-            ? '0px 8px 24px rgba(0,98,65,0.10), 0 0 0 1.5px rgba(6,125,85,0.25)'
-            : '0px 8px 24px rgba(27,28,25,0.06)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      }}
-    >
-      {/* Cover */}
-      <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative' }}>
+  function renderBookCover() {
+    return (
+      <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative', borderRadius: coverRadius }}>
         {cover ? (
           <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             onError={handleCoverError} />
@@ -130,20 +126,58 @@ export default function BookCard({ book, onClick }: { book: Book; onClick: () =>
           </div>
         )}
       </div>
+    );
+  }
 
-      {/* Info */}
-      <div style={{ padding: '10px 11px 12px' }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.35, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+  function renderBookInfo(compact = false) {
+    return (
+      <div style={{ padding: isArchiveVariant ? compact ? '2px 0 0' : '12px 2px 0' : '10px 11px 12px' }}>
+        <div style={{ fontSize: compact ? 13 : 12, fontWeight: 600, color: isArchiveVariant ? '#171715' : '#2D2D2D', lineHeight: 1.35, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: compact ? 3 : 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
           {book.title}
         </div>
-        <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: compact ? 12 : 11, color: isArchiveVariant ? '#5e5a52' : '#6B6B6B', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {book.author}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, flexWrap: compact ? 'wrap' : 'nowrap' }}>
           {book.genres[0] && <GenreTag genre={book.genres[0]} />}
           {book.rating ? <StarRating rating={book.rating} size={11} /> : null}
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: isArchiveVariant ? 'rgba(255,253,250,0.86)' : '#FFFFFF',
+        border: isArchiveVariant ? '1px solid #d8d3c8' : 'none',
+        borderRadius: cardRadius,
+        overflow: 'hidden',
+        padding: isArchiveVariant ? 15 : 0,
+        cursor: 'pointer',
+        transform: hover ? 'translateY(-3px)' : 'none',
+        boxShadow: hover
+          ? isArchiveVariant ? '0 24px 48px rgba(44,36,24,0.12)' : '0px 16px 40px rgba(27,28,25,0.12)'
+          : isArchiveVariant ? '0 18px 44px rgba(44,36,24,0.06)' : book.status === 'Reading'
+            ? '0px 8px 24px rgba(0,98,65,0.10), 0 0 0 1.5px rgba(6,125,85,0.25)'
+            : '0px 8px 24px rgba(27,28,25,0.06)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      }}
+    >
+      {isFeature ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '70px minmax(0, 1fr)', gap: 15, alignItems: 'start' }}>
+          {renderBookCover()}
+          {renderBookInfo(true)}
+        </div>
+      ) : (
+        <>
+          {renderBookCover()}
+          {renderBookInfo()}
+        </>
+      )}
     </div>
   );
 }

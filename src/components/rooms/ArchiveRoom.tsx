@@ -129,7 +129,7 @@ export default function ArchiveRoom({
             <section style={{ ...archiveStyles.surface, padding: 22 }}>
               <ArchiveSectionHeader title="Current stack" count={reading.length} />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
-                {reading.slice(0, 3).map(book => <ArchiveBookCard key={book.id} book={book} onClick={() => onSelectBook(book)} variant="archiveFeature" />)}
+                {reading.slice(0, 3).map(book => <BookCard key={book.id} book={book} onClick={() => onSelectBook(book)} variant="archiveFeature" />)}
               </div>
             </section>
           )}
@@ -153,12 +153,6 @@ export default function ArchiveRoom({
     </div>
   );
 }
-
-type ArchiveBookCardProps = Parameters<typeof BookCard>[0] & {
-  variant?: 'archiveFeature' | 'archiveShelf';
-};
-
-const ArchiveBookCard = BookCard as (props: ArchiveBookCardProps) => ReturnType<typeof BookCard>;
 
 function ArchiveStat({ label, value }: { label: string; value: number }) {
   return (
@@ -256,7 +250,7 @@ function ArchiveShelf({ books, onSelect }: { books: Book[]; onSelect: (book: Boo
 
   return (
     <div className="archive-shelf-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(142px, 1fr))', gap: 16 }}>
-      {books.map(book => <ArchiveBookCard key={book.id} book={book} onClick={() => onSelect(book)} variant="archiveShelf" />)}
+      {books.map(book => <BookCard key={book.id} book={book} onClick={() => onSelect(book)} variant="archiveShelf" />)}
     </div>
   );
 }
