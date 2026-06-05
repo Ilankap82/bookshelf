@@ -81,15 +81,15 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, background: 'rgba(27,28,25,0.45)', zIndex: 100, display: 'flex', justifyContent: 'flex-end', backdropFilter: 'blur(4px)' }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(23,23,21,0.38)', zIndex: 100, display: 'flex', justifyContent: 'flex-end', backdropFilter: 'blur(6px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ width: 520, background: '#FAF9F4', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', boxShadow: '-12px 0 60px rgba(27,28,25,0.15)', position: 'relative', animation: 'slideIn 0.28s cubic-bezier(0.16,1,0.3,1)' }}>
+      <div style={{ width: 540, background: '#f7f4ec', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', boxShadow: '-18px 0 70px rgba(23,23,21,0.16)', position: 'relative', animation: 'slideIn 0.28s cubic-bezier(0.16,1,0.3,1)' }}>
         <style>{`@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
 
         {/* Top action bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 22px', borderBottom: '1px solid rgba(45,45,45,0.08)' }}>
-          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1.5, color: '#6B6B6B' }}>Book Detail</span>
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: 1.5, color: '#777269' }}>Selected volume</span>
           <button
             onClick={onClose}
             style={{ background: 'rgba(45,45,45,0.08)', border: 'none', width: 28, height: 28, borderRadius: '50%', fontSize: 13, cursor: 'pointer', color: '#4B4B4B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -112,7 +112,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
 
           {/* Metadata — 58% */}
           <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
-            <div style={{ fontFamily: "'Newsreader', serif", fontStyle: 'italic' as const, fontSize: 20, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.3, marginBottom: 5 }}>{book.title}</div>
+            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 28, fontWeight: 400, color: '#171715', lineHeight: 1.12, marginBottom: 6 }}>{book.title}</div>
             {metadata.subtitle && (
               <div style={{ fontSize: 13, color: '#4B4B4B', lineHeight: 1.45, marginBottom: 5 }}>{metadata.subtitle}</div>
             )}
@@ -178,7 +178,8 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
           {metadata.publishedYear && <Row label="Published" value={String(metadata.publishedYear)} />}
           {metadata.publisher && <Row label="Publisher" value={metadata.publisher} />}
           {metadata.language && <Row label="Language" value={metadata.language} />}
-          {book.metadataStatus && <Row label="Metadata" value={metadataStatusLabel[book.metadataStatus] || book.metadataStatus} />}
+          {book.metadataStatus && <Row label="Quality" value={metadataStatusLabel[book.metadataStatus] || book.metadataStatus} />}
+          {!cover && <Row label="Cover" value="Missing cover" />}
 
           {book.tropes.length > 0 && (
             <div style={{ marginBottom: 16 }}>
@@ -215,19 +216,19 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
         <div style={{ padding: '16px 24px 24px', borderTop: '1px solid rgba(45,45,45,0.08)', display: 'flex', gap: 8 }}>
           <button
             onClick={onEdit}
-            style={{ flex: 1, padding: '10px 0', borderRadius: 8, fontSize: 13, fontFamily: "'Manrope', sans-serif", cursor: 'pointer', border: 'none', fontWeight: 600, background: 'linear-gradient(160deg, #067D55 0%, #006241 100%)', color: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,98,65,0.25)' }}
+            style={{ flex: 1, padding: '11px 0', borderRadius: 999, fontSize: 13, fontFamily: "'Manrope', sans-serif", cursor: 'pointer', border: 'none', fontWeight: 650, background: '#171715', color: '#f7f4ec', boxShadow: '0 12px 24px rgba(23,23,21,0.12)' }}
           >
             Edit Book
           </button>
           {confirmDelete ? (
             <>
-              <button onClick={onDelete} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(220,38,38,0.35)', background: 'rgba(220,38,38,0.08)', color: '#DC2626', fontWeight: 600 }}>Confirm Delete</button>
-              <button onClick={() => setConfirmDeleteFor(null)} style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(45,45,45,0.18)', background: 'transparent', color: '#4B4B4B' }}>Cancel</button>
+              <button onClick={onDelete} style={{ padding: '10px 14px', borderRadius: 999, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(140,61,50,0.35)', background: 'rgba(140,61,50,0.08)', color: '#8c3d32', fontWeight: 650 }}>Confirm Delete</button>
+              <button onClick={() => setConfirmDeleteFor(null)} style={{ padding: '10px 14px', borderRadius: 999, fontSize: 12, cursor: 'pointer', border: '1px solid #d8d3c8', background: 'transparent', color: '#4B4B4B' }}>Cancel</button>
             </>
           ) : (
             <button
               onClick={() => setConfirmDeleteFor(book.id)}
-              style={{ padding: '10px 14px', borderRadius: 8, fontSize: 13, cursor: 'pointer', border: '1px solid rgba(220,38,38,0.25)', background: 'transparent', color: '#DC2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ padding: '10px 14px', borderRadius: 999, fontSize: 13, cursor: 'pointer', border: '1px solid rgba(140,61,50,0.25)', background: 'transparent', color: '#8c3d32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             </button>
