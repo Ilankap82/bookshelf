@@ -82,7 +82,7 @@ export default function BookCard({
     return (
       <div style={{ width: '100%', aspectRatio: '2/3', overflow: 'hidden', position: 'relative', borderRadius: coverRadius }}>
         {cover ? (
-          <img src={cover} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          <img src={cover} alt={book.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             onError={handleCoverError} />
         ) : (
           <div style={{
