@@ -13,6 +13,26 @@
   min-width: 560px;
 }
 
+@media (max-width: 1100px) {
+  .archive-header {
+    grid-template-columns: 1fr !important;
+  }
+
+  .archive-stat-strip {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .archive-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .archive-main-grid > aside {
+    order: -1;
+    position: static !important;
+  }
+}
+
 @media (max-width: 720px) {
   .book-tracker-shell {
     flex-direction: column !important;
