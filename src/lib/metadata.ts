@@ -141,6 +141,32 @@ function sourceIdsFromResult(result: MetadataSearchResult): SourceIds {
   return ids;
 }
 
+function mergedStringArray(existing: readonly string[] | undefined, incoming: readonly string[] | undefined): string[] | undefined {
+  const values = Array.from(new Set([...(existing ?? []), ...(incoming ?? [])]));
+
+  return values.length > 0 ? values : undefined;
+}
+
+function mergeSourceIds(existing: SourceIds | undefined, result: MetadataSearchResult): SourceIds {
+  const incoming = sourceIdsFromResult(result);
+  const sourceIds: SourceIds = {};
+  const openLibraryKey = incoming.openLibraryKey !== undefined && incoming.openLibraryKey !== ''
+    ? incoming.openLibraryKey
+    : existing?.openLibraryKey;
+  const googleBooksId = incoming.googleBooksId !== undefined && incoming.googleBooksId !== ''
+    ? incoming.googleBooksId
+    : existing?.googleBooksId;
+  const isbn10 = mergedStringArray(existing?.isbn10, incoming.isbn10);
+  const isbn13 = mergedStringArray(existing?.isbn13, incoming.isbn13);
+
+  if (openLibraryKey !== undefined) sourceIds.openLibraryKey = openLibraryKey;
+  if (googleBooksId !== undefined) sourceIds.googleBooksId = googleBooksId;
+  if (isbn10 !== undefined) sourceIds.isbn10 = isbn10;
+  if (isbn13 !== undefined) sourceIds.isbn13 = isbn13;
+
+  return sourceIds;
+}
+
 function openLibrarySourceId(key: unknown): string {
   return optionalString(key)?.split('/').filter(Boolean).at(-1) ?? '';
 }
@@ -343,10 +369,7 @@ export function mergeBookWithMetadataResult(book: Book, result: MetadataSearchRe
     coverCandidates,
     metadataStatus: 'candidate',
     metadataSources: Array.from(new Set([...(book.metadataSources ?? []), metadataSourceName(result.sourceName)])),
-    sourceIds: {
-      ...book.sourceIds,
-      ...sourceIdsFromResult(result),
-    },
+    sourceIds: mergeSourceIds(book.sourceIds, result),
   };
 }
 

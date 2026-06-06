@@ -368,4 +368,30 @@ describe('mergeBookWithMetadataResult', () => {
       'https://example.com/cover.jpg',
     ]);
   });
+
+  it('merges source ISBN arrays without replacing existing source IDs with empty values', () => {
+    const merged = mergeBookWithMetadataResult(
+      {
+        ...existingBook,
+        sourceIds: {
+          openLibraryKey: 'OL-existing',
+          isbn10: ['1111111111', '1234567890'],
+          isbn13: ['9781111111111'],
+        },
+      },
+      {
+        ...result,
+        sourceName: 'open-library',
+        sourceId: '',
+        isbn10: ['1234567890', '2222222222'],
+        isbn13: ['9781111111111', '9782222222222'],
+      },
+    );
+
+    expect(merged.sourceIds).toEqual({
+      openLibraryKey: 'OL-existing',
+      isbn10: ['1111111111', '1234567890', '2222222222'],
+      isbn13: ['9781111111111', '9782222222222'],
+    });
+  });
 });
