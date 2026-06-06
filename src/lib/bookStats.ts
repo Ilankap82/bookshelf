@@ -121,12 +121,14 @@ export function getEarnedReaderTitle(books: Book[]): EarnedReaderTitle {
   const trackedCount = books.length;
   const current = [...TITLE_LEVELS].reverse().find((level) => trackedCount >= level.threshold) ?? TITLE_LEVELS[0];
   const next = TITLE_LEVELS.find((level) => level.threshold > trackedCount) ?? null;
+  const progressRange = next ? next.threshold - current.threshold : 0;
+  const progress = next ? Math.round(((trackedCount - current.threshold) / progressRange) * 100) : 100;
 
   return {
     title: current.title,
     level: current.level,
     nextTitle: next?.title ?? null,
-    progress: next ? Math.min(100, Math.round((trackedCount / next.threshold) * 100)) : 100,
+    progress,
   };
 }
 

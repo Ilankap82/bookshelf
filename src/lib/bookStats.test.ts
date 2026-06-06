@@ -216,7 +216,31 @@ describe('earned reader titles', () => {
 
   it('awards Page Finder after tracking three books', () => {
     const books = [1, 2, 3].map((n) => ({ ...baseBook, id: String(n) }));
-    expect(getEarnedReaderTitle(books).title).toBe('Page Finder');
+    expect(getEarnedReaderTitle(books)).toEqual({
+      title: 'Page Finder',
+      level: 2,
+      nextTitle: 'Avid Reader',
+      progress: 0,
+    });
+  });
+
+  it('tracks progress within the current title tier', () => {
+    const fourBooks = [1, 2, 3, 4].map((n) => ({ ...baseBook, id: String(n) }));
+    const fiveBooks = [1, 2, 3, 4, 5].map((n) => ({ ...baseBook, id: String(n) }));
+
+    expect(getEarnedReaderTitle(fourBooks)).toEqual({
+      title: 'Page Finder',
+      level: 2,
+      nextTitle: 'Avid Reader',
+      progress: 50,
+    });
+
+    expect(getEarnedReaderTitle(fiveBooks)).toEqual({
+      title: 'Avid Reader',
+      level: 3,
+      nextTitle: 'Bibliophile',
+      progress: 0,
+    });
   });
 
   it('awards Lead Curator after twenty tracked books', () => {
@@ -226,9 +250,11 @@ describe('earned reader titles', () => {
       status: index < 10 ? 'Completed' : 'Want to Read',
     } satisfies Book));
 
-    expect(getEarnedReaderTitle(books)).toMatchObject({
+    expect(getEarnedReaderTitle(books)).toEqual({
       title: 'Lead Curator',
       level: 5,
+      nextTitle: null,
+      progress: 100,
     });
   });
 });
