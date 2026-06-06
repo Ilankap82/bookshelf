@@ -6,7 +6,7 @@ import { getCoverCandidates } from '../../utils/cover';
 import { S } from '../sharedStyles';
 import { GenreTag, StarRating } from '../sharedUi';
 
-type RoomView = 'archive' | 'reading' | 'discovery';
+type RoomView = 'library' | 'stats' | 'discover';
 
 interface IndexRoomProps {
   books: Book[];
@@ -14,6 +14,7 @@ interface IndexRoomProps {
   recommendations: Recommendation[];
   onNavigate: (view: RoomView) => void;
   onSelectBook: (book: Book) => void;
+  onAddBook?: () => void;
 }
 
 export default function IndexRoom({ books, currentlyReading, recommendations, onNavigate, onSelectBook }: IndexRoomProps) {
@@ -28,9 +29,9 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
       <div className="room-topbar" style={S.topbar}>
         <span style={S.pageTitle}>Index</span>
         <div className="room-topbar-actions" style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
-          <button style={S.btnGhost} onClick={() => onNavigate('reading')}>Reading</button>
-          <button style={S.btnGhost} onClick={() => onNavigate('archive')}>Archive</button>
-          <button style={S.btnPrimary} onClick={() => onNavigate('discovery')}>Discovery</button>
+          <button style={S.btnGhost} onClick={() => onNavigate('stats')}>Reading</button>
+          <button style={S.btnGhost} onClick={() => onNavigate('library')}>Archive</button>
+          <button style={S.btnPrimary} onClick={() => onNavigate('discover')}>Discovery</button>
         </div>
       </div>
 
@@ -44,7 +45,7 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
 
         <div className="index-room-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18, alignItems: 'start' }}>
           <section>
-            <SectionTitle title="Currently Reading" action="Open Reading Room" onAction={() => onNavigate('reading')} />
+            <SectionTitle title="Currently Reading" action="Open Reading Room" onAction={() => onNavigate('stats')} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {currentlyReading.slice(0, 2).map(book => (
                 <ReadingPreview key={book.id} book={book} onClick={() => onSelectBook(book)} />
@@ -57,7 +58,7 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
 
           <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
-              <SectionTitle title="Archive Health" action="Open Archive" onAction={() => onNavigate('archive')} />
+              <SectionTitle title="Archive Health" action="Open Archive" onAction={() => onNavigate('library')} />
               <div style={{ background: '#FFFFFF', borderRadius: 12, padding: 18, boxShadow: '0px 8px 24px rgba(27,28,25,0.06)' }}>
                 <HealthRow label="Total books" value={archiveStats.totalBooks} />
                 <HealthRow label="Missing covers" value={archiveStats.missingCovers} />
@@ -70,7 +71,7 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
 
             {recommendation && (
               <div>
-                <SectionTitle title="Discovery Preview" action="See More" onAction={() => onNavigate('discovery')} />
+                <SectionTitle title="Discovery Preview" action="See More" onAction={() => onNavigate('discover')} />
                 <RecommendationPreview rec={recommendation} />
               </div>
             )}

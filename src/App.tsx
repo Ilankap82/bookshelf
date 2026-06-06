@@ -8,12 +8,12 @@ import DetailPanel from './components/DetailPanel';
 import BookForm from './components/BookForm';
 import BookIntakePanel from './components/BookIntakePanel';
 import RecommendationsView from './components/RecommendationsView';
+import StatsDashboard from './components/StatsDashboard';
 import Sidebar from './components/Sidebar';
 import IndexRoom from './components/rooms/IndexRoom';
-import ReadingRoom from './components/rooms/ReadingRoom';
 import ArchiveRoom from './components/rooms/ArchiveRoom';
 
-type View = 'index' | 'reading' | 'archive' | 'discovery';
+type View = 'home' | 'library' | 'stats' | 'discover';
 type FilterStatus = Status | 'All';
 type InitialData = { books: Book[]; canPersistInitialBooks: boolean };
 
@@ -53,7 +53,7 @@ function saveData(books: Book[]) {
 export default function App() {
   const [initialData] = useState(loadData);
   const [books, setBooks] = useState<Book[]>(initialData.books);
-  const [view, setView] = useState<View>('index');
+  const [view, setView] = useState<View>('home');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('All');
   const [filterGenre, setFilterGenre] = useState<Genre | 'All'>('All');
   const [filterFormat, setFilterFormat] = useState<Format | 'All'>('All');
@@ -162,26 +162,24 @@ export default function App() {
         counts={counts}
         currentlyReading={currentlyReading[0] || null}
         filterStatus={filterStatus}
-        onFilterStatus={(s: FilterStatus) => { setFilterStatus(s); setView('archive'); }}
+        onFilterStatus={(s: FilterStatus) => { setFilterStatus(s); setView('library'); }}
         onAddBook={() => setEditingBook('new')}
         user={user}
         onEditUser={() => setEditingUser(true)}
       />
 
       <main className="book-tracker-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-        {view === 'index' && (
+        {view === 'home' && (
           <IndexRoom
             books={books}
             currentlyReading={currentlyReading}
             recommendations={RECOMMENDATIONS}
             onNavigate={setView}
             onSelectBook={setSelectedBook}
+            onAddBook={() => setEditingBook('new')}
           />
         )}
-        {view === 'reading' && (
-          <ReadingRoom books={books} onSelectBook={setSelectedBook} />
-        )}
-        {view === 'archive' && (
+        {view === 'library' && (
           <ArchiveRoom
             books={filteredBooks}
             allBooks={books}
@@ -201,7 +199,8 @@ export default function App() {
             onImport={() => fileInputRef.current?.click()}
           />
         )}
-        {view === 'discovery' && <RecommendationsView recommendations={RECOMMENDATIONS} books={books} onAddToList={addToWantToRead} />}
+        {view === 'stats' && <StatsDashboard books={books} />}
+        {view === 'discover' && <RecommendationsView recommendations={RECOMMENDATIONS} books={books} onAddToList={addToWantToRead} />}
       </main>
 
       {selectedBook && !editingBook && (
