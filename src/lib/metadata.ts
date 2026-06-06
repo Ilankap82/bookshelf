@@ -324,6 +324,32 @@ export function createDraftBookFromResult(
   return draft;
 }
 
+export function mergeBookWithMetadataResult(book: Book, result: MetadataSearchResult): Book {
+  const coverCandidates = Array.from(new Set([
+    book.coverUrl,
+    ...(book.coverCandidates ?? []),
+    ...result.coverCandidates,
+  ].filter((candidate): candidate is string => Boolean(candidate))));
+
+  return {
+    ...book,
+    subtitle: book.subtitle,
+    description: book.description,
+    publishedYear: book.publishedYear ?? result.publishedYear,
+    publisher: book.publisher ?? result.publisher,
+    pageCount: book.pageCount ?? result.pageCount,
+    language: book.language ?? result.language,
+    coverUrl: book.coverUrl ?? result.coverCandidates[0],
+    coverCandidates,
+    metadataStatus: 'candidate',
+    metadataSources: Array.from(new Set([...(book.metadataSources ?? []), metadataSourceName(result.sourceName)])),
+    sourceIds: {
+      ...book.sourceIds,
+      ...sourceIdsFromResult(result),
+    },
+  };
+}
+
 export function createManualDraftBook(
   title: string,
   author: string,

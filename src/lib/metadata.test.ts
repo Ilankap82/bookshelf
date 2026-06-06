@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import type { Book } from '../types';
 import {
   createDraftBookFromResult,
   createManualDraftBook,
+  mergeBookWithMetadataResult,
   normalizeGoogleBooksItems,
   normalizeOpenLibraryDocs,
   searchBookMetadata,
@@ -303,5 +305,67 @@ describe('metadata', () => {
       metadataSources: ['manual'],
       coverCandidates: [],
     });
+  });
+});
+
+const existingBook: Book = {
+  id: 'book-1',
+  title: 'Existing Title',
+  author: 'Existing Author',
+  status: 'Reading',
+  genres: ['Fiction'],
+  tropes: ['quiet'],
+  pagesRead: 42,
+  notes: 'Keep my note',
+};
+
+const result: MetadataSearchResult = {
+  sourceName: 'google-books',
+  sourceId: 'gb-1',
+  title: 'Fetched Title',
+  author: 'Fetched Author',
+  publishedYear: 2020,
+  publisher: 'Fetched Press',
+  pageCount: 320,
+  language: 'en',
+  isbn10: ['1234567890'],
+  isbn13: ['9781234567890'],
+  coverCandidates: ['https://example.com/cover.jpg'],
+};
+
+describe('mergeBookWithMetadataResult', () => {
+  it('fills missing metadata without replacing user reading state', () => {
+    expect(mergeBookWithMetadataResult(existingBook, result)).toMatchObject({
+      id: 'book-1',
+      title: 'Existing Title',
+      author: 'Existing Author',
+      status: 'Reading',
+      genres: ['Fiction'],
+      tropes: ['quiet'],
+      pagesRead: 42,
+      notes: 'Keep my note',
+      publishedYear: 2020,
+      publisher: 'Fetched Press',
+      pageCount: 320,
+      language: 'en',
+      coverUrl: 'https://example.com/cover.jpg',
+      coverCandidates: ['https://example.com/cover.jpg'],
+      metadataStatus: 'candidate',
+      metadataSources: ['google-books'],
+    });
+  });
+
+  it('does not overwrite existing user-entered page count or cover', () => {
+    const merged = mergeBookWithMetadataResult(
+      { ...existingBook, pageCount: 111, coverUrl: 'https://example.com/original.jpg' },
+      result,
+    );
+
+    expect(merged.pageCount).toBe(111);
+    expect(merged.coverUrl).toBe('https://example.com/original.jpg');
+    expect(merged.coverCandidates).toEqual([
+      'https://example.com/original.jpg',
+      'https://example.com/cover.jpg',
+    ]);
   });
 });
