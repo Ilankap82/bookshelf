@@ -3,9 +3,19 @@ import type { Book } from '../types';
 import {
   getArchiveStats,
   getDiscoveryStats,
+  getEarnedReaderTitle,
   getIndexStats,
   getReadingStats,
 } from './bookStats';
+
+const baseBook: Book = {
+  id: 'book-1',
+  title: 'Book',
+  author: 'Author',
+  status: 'Want to Read',
+  genres: ['Fiction'],
+  tropes: [],
+};
 
 const books: Book[] = [
   {
@@ -190,6 +200,35 @@ describe('bookStats', () => {
         'Crime',
         'Historical',
       ],
+    });
+  });
+});
+
+describe('earned reader titles', () => {
+  it('starts every user at Reader', () => {
+    expect(getEarnedReaderTitle([])).toEqual({
+      title: 'Reader',
+      level: 1,
+      nextTitle: 'Page Finder',
+      progress: 0,
+    });
+  });
+
+  it('awards Page Finder after tracking three books', () => {
+    const books = [1, 2, 3].map((n) => ({ ...baseBook, id: String(n) }));
+    expect(getEarnedReaderTitle(books).title).toBe('Page Finder');
+  });
+
+  it('awards Lead Curator after twenty tracked books', () => {
+    const books = Array.from({ length: 20 }, (_, index) => ({
+      ...baseBook,
+      id: String(index),
+      status: index < 10 ? 'Completed' : 'Want to Read',
+    } satisfies Book));
+
+    expect(getEarnedReaderTitle(books)).toMatchObject({
+      title: 'Lead Curator',
+      level: 5,
     });
   });
 });

@@ -50,6 +50,21 @@ export interface DiscoveryStats {
   underReadGenres: Genre[];
 }
 
+export interface EarnedReaderTitle {
+  title: string;
+  level: number;
+  nextTitle: string | null;
+  progress: number;
+}
+
+const TITLE_LEVELS = [
+  { title: 'Reader', level: 1, threshold: 0 },
+  { title: 'Page Finder', level: 2, threshold: 3 },
+  { title: 'Avid Reader', level: 3, threshold: 5 },
+  { title: 'Bibliophile', level: 4, threshold: 10 },
+  { title: 'Lead Curator', level: 5, threshold: 20 },
+] as const;
+
 export function getIndexStats(books: Book[], year: number): IndexStats {
   const completedInYear = books.filter((book) => {
     if (book.status !== 'Completed' || !book.finishDate) return false;
@@ -99,6 +114,19 @@ export function getDiscoveryStats(books: Book[]): DiscoveryStats {
   return {
     wantToReadCount: books.filter((book) => book.status === 'Want to Read').length,
     underReadGenres: GENRES.filter((genre) => !completedGenres.has(genre)),
+  };
+}
+
+export function getEarnedReaderTitle(books: Book[]): EarnedReaderTitle {
+  const trackedCount = books.length;
+  const current = [...TITLE_LEVELS].reverse().find((level) => trackedCount >= level.threshold) ?? TITLE_LEVELS[0];
+  const next = TITLE_LEVELS.find((level) => level.threshold > trackedCount) ?? null;
+
+  return {
+    title: current.title,
+    level: current.level,
+    nextTitle: next?.title ?? null,
+    progress: next ? Math.min(100, Math.round((trackedCount / next.threshold) * 100)) : 100,
   };
 }
 
