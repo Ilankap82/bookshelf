@@ -76,12 +76,15 @@ describe('shared cover resolution', () => {
   });
 
   it('removes failed URLs from candidates', () => {
-    expect(getCoverCandidates(
+    expect(resolveStoredCover(
       {
         coverUrl: 'https://example.com/a.jpg',
         coverCandidates: ['https://example.com/b.jpg'],
       },
       ['https://example.com/a.jpg'],
-    )).toEqual(['https://example.com/b.jpg']);
+    )).toEqual({
+      url: 'https://example.com/b.jpg',
+      source: 'candidate',
+    });
   });
 });
