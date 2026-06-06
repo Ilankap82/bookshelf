@@ -3,6 +3,7 @@ import {
   cleanCoverCandidates,
   getCoverCandidates,
   getPrimaryCoverUrl,
+  resolveStoredCover,
 } from './cover';
 
 describe('cover utilities', () => {
@@ -40,5 +41,47 @@ describe('cover utilities', () => {
       },
       ['https://example.com/bad-cover.jpg'],
     )).toEqual(['https://example.com/good-cover.jpg']);
+  });
+});
+
+describe('shared cover resolution', () => {
+  it('prefers a clean stored cover before candidates', () => {
+    expect(resolveStoredCover({
+      coverUrl: 'https://example.com/main.jpg',
+      coverCandidates: ['https://example.com/other.jpg'],
+    })).toEqual({
+      url: 'https://example.com/main.jpg',
+      source: 'stored',
+    });
+  });
+
+  it('falls back to the first clean candidate when stored cover is bad', () => {
+    expect(resolveStoredCover({
+      coverUrl: 'https://covers.openlibrary.org/b/id/12468631-L.jpg',
+      coverCandidates: ['https://example.com/candidate.jpg'],
+    })).toEqual({
+      url: 'https://example.com/candidate.jpg',
+      source: 'candidate',
+    });
+  });
+
+  it('returns null when every known cover is bad or empty', () => {
+    expect(resolveStoredCover({
+      coverUrl: 'https://covers.openlibrary.org/b/id/8743161-L.jpg',
+      coverCandidates: ['', 'https://covers.openlibrary.org/b/id/12468631-L.jpg'],
+    })).toEqual({
+      url: null,
+      source: 'missing',
+    });
+  });
+
+  it('removes failed URLs from candidates', () => {
+    expect(getCoverCandidates(
+      {
+        coverUrl: 'https://example.com/a.jpg',
+        coverCandidates: ['https://example.com/b.jpg'],
+      },
+      ['https://example.com/a.jpg'],
+    )).toEqual(['https://example.com/b.jpg']);
   });
 });

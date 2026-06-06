@@ -36,6 +36,25 @@ export function getCoverCandidates(
   return candidates.filter(candidate => !failedUrls.includes(candidate));
 }
 
+export interface ResolvedStoredCover {
+  url: string | null;
+  source: 'stored' | 'candidate' | 'missing';
+}
+
+export function resolveStoredCover(
+  book: Pick<Book, 'coverUrl' | 'coverCandidates'>,
+  failedUrls: string[] = [],
+): ResolvedStoredCover {
+  const candidates = getCoverCandidates(book, failedUrls);
+  const storedCover = book.coverUrl && !failedUrls.includes(book.coverUrl) && !isBadCoverUrl(book.coverUrl)
+    ? book.coverUrl
+    : null;
+
+  if (storedCover) return { url: storedCover, source: 'stored' };
+  if (candidates[0]) return { url: candidates[0], source: 'candidate' };
+  return { url: null, source: 'missing' };
+}
+
 function normalize(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
 }
