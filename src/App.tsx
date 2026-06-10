@@ -20,6 +20,7 @@ type FilterStatus = Status | 'All';
 type InitialData = { books: Book[]; canPersistInitialBooks: boolean };
 
 const USER_KEY = 'bookshelf_user';
+const DECLINED_RECS_KEY = 'bookshelf_declined_recommendations';
 
 export interface UserProfile {
   name: string;
@@ -40,6 +41,20 @@ function loadUser(): UserProfile {
 
 function saveUser(u: UserProfile) {
   localStorage.setItem(USER_KEY, JSON.stringify(u));
+}
+
+function loadDeclinedRecommendations(): string[] {
+  try {
+    const raw = localStorage.getItem(DECLINED_RECS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveDeclinedRecommendations(ids: string[]) {
+  localStorage.setItem(DECLINED_RECS_KEY, JSON.stringify(ids));
 }
 
 function loadData(): InitialData {
@@ -65,6 +80,7 @@ export default function App() {
   const [editingBook, setEditingBook] = useState<Book | null | 'new'>(null);
   const [user, setUser] = useState<UserProfile>(loadUser);
   const [editingUser, setEditingUser] = useState(false);
+  const [declinedRecommendationIds, setDeclinedRecommendationIds] = useState<string[]>(loadDeclinedRecommendations);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canPersistBooksRef = useRef(initialData.canPersistInitialBooks);
 
@@ -148,6 +164,14 @@ export default function App() {
     setBooks(prev => [...prev, newBook]);
   }
 
+  function declineRecommendation(id: string) {
+    setDeclinedRecommendationIds(prev => {
+      const next = Array.from(new Set([...prev, id]));
+      saveDeclinedRecommendations(next);
+      return next;
+    });
+  }
+
   async function refreshBookMetadata(book: Book) {
     const response = await searchBookMetadata({
       title: book.title,
@@ -215,7 +239,15 @@ export default function App() {
           />
         )}
         {view === 'stats' && <StatsDashboard books={books} />}
-        {view === 'discover' && <RecommendationsView recommendations={RECOMMENDATIONS} books={books} onAddToList={addToWantToRead} />}
+        {view === 'discover' && (
+          <RecommendationsView
+            recommendations={RECOMMENDATIONS}
+            books={books}
+            declinedRecommendationIds={declinedRecommendationIds}
+            onAddToList={addToWantToRead}
+            onDecline={declineRecommendation}
+          />
+        )}
       </main>
 
       {selectedBook && !editingBook && (

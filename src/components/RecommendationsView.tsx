@@ -28,16 +28,22 @@ const QUOTES = [
 
 const todayQuote = QUOTES[new Date().getDate() % QUOTES.length];
 
-export default function RecommendationsView({ recommendations, books, onAddToList }: {
-  recommendations: Recommendation[]; books: Book[]; onAddToList: (r: Recommendation) => void;
+export default function RecommendationsView({ recommendations, books, declinedRecommendationIds, onAddToList, onDecline }: {
+  recommendations: Recommendation[];
+  books: Book[];
+  declinedRecommendationIds: string[];
+  onAddToList: (r: Recommendation) => void;
+  onDecline: (id: string) => void;
 }) {
   const [mood, setMood] = useState('All');
   const alreadyHave = new Set(books.map(b => b.title.toLowerCase()));
+  const declined = new Set(declinedRecommendationIds);
   const discoveryStats = getDiscoveryStats(books);
   const favoriteGenres = topValues(books.filter(b => b.status === 'Completed').flatMap(b => b.genres), 3);
   const favoriteTropes = topValues(books.filter(b => b.status === 'Completed').flatMap(b => b.tropes), 3);
 
   const filtered = recommendations.filter(r => {
+    if (declined.has(r.id)) return false;
     if (alreadyHave.has(r.title.toLowerCase())) return false;
     if (mood !== 'All' && !r.moods.includes(mood)) return false;
     return true;
@@ -119,7 +125,7 @@ export default function RecommendationsView({ recommendations, books, onAddToLis
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {filtered.map(r => <RecCard key={r.id} rec={r} onAdd={() => onAddToList(r)} />)}
+          {filtered.map(r => <RecCard key={r.id} rec={r} onAdd={() => onAddToList(r)} onDecline={() => onDecline(r.id)} />)}
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#6B6B6B' }}>
               <div style={{ fontSize: 36, marginBottom: 10 }}>✨</div>
@@ -154,7 +160,7 @@ function Signal({ label, value }: { label: string; value: string }) {
   );
 }
 
-function RecCard({ rec, onAdd }: { rec: Recommendation; onAdd: () => void }) {
+function RecCard({ rec, onAdd, onDecline }: { rec: Recommendation; onAdd: () => void; onDecline: () => void }) {
   const [cover] = useState<string | null>(rec.isbn ? `https://covers.openlibrary.org/b/isbn/${rec.isbn}-M.jpg` : null);
   const [hover, setHover] = useState(false);
   const [added, setAdded] = useState(false);
@@ -204,6 +210,12 @@ function RecCard({ rec, onAdd }: { rec: Recommendation; onAdd: () => void }) {
             style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 8, border: '1px solid rgba(45,45,45,0.18)', background: 'transparent', color: '#4B4B4B', cursor: 'pointer', marginLeft: 'auto' }}
           >
             Look up
+          </button>
+          <button
+            onClick={onDecline}
+            style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 8, border: '1px solid rgba(45,45,45,0.18)', background: 'transparent', color: '#4B4B4B', cursor: 'pointer' }}
+          >
+            Not interested
           </button>
           <button
             onClick={handleAdd}
