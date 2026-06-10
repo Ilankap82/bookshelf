@@ -67,16 +67,16 @@ export default function ArchiveRoom({
     <div className="archive-room" style={archiveStyles.room}>
       <header className="archive-header" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 24, alignItems: 'end', marginBottom: 24 }}>
         <div>
-          <div style={{ ...archiveStyles.eyebrow, marginBottom: 12 }}>Archive</div>
+          <div style={{ ...archiveStyles.eyebrow, marginBottom: 12 }}>Library</div>
           <h1 style={archiveStyles.title}>Library</h1>
           <p style={{ maxWidth: 620, margin: '18px 0 0', color: archiveTone.muted, fontSize: 15, lineHeight: 1.7 }}>
-            A quieter catalogue for the books you kept, the books still moving through you, and the records that deserve care.
+            A quieter catalogue for the books you kept, the books still moving through you, and the details that help each title feel complete.
           </p>
         </div>
         <div className="archive-stat-strip" style={{ ...archiveStyles.surface, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(86px, 1fr))', gap: 1, overflow: 'hidden', minWidth: 340 }}>
           <ArchiveStat label="Books" value={books.length} />
           <ArchiveStat label="Reading" value={reading.length} />
-          <ArchiveStat label="Care" value={qualitySummary.needsCare} />
+          <ArchiveStat label="Needs refresh" value={qualitySummary.needsCare} />
         </div>
       </header>
 
@@ -141,7 +141,7 @@ export default function ArchiveRoom({
               action={(
                 <div style={{ display: 'flex', gap: 4, padding: 3, border: `1px solid ${archiveTone.border}`, borderRadius: 999, background: 'rgba(240,238,232,0.72)' }}>
                   <button aria-pressed={viewMode === 'covers'} style={viewToggleStyle(viewMode === 'covers')} onClick={() => setViewMode('covers')}>Covers</button>
-                  <button aria-pressed={viewMode === 'ledger'} style={viewToggleStyle(viewMode === 'ledger')} onClick={() => setViewMode('ledger')}>Ledger</button>
+                  <button aria-pressed={viewMode === 'ledger'} style={viewToggleStyle(viewMode === 'ledger')} onClick={() => setViewMode('ledger')}>List</button>
                 </div>
               )}
             />
@@ -288,12 +288,12 @@ function QualityBadge({ book }: { book: Book }) {
 function ArchiveCarePanel({ qualitySummary }: { qualitySummary: ArchiveQualitySummary }) {
   return (
     <aside style={{ ...archiveStyles.surface, padding: 20, position: 'sticky', top: 24 }}>
-      <ArchiveSectionHeader title="Archive care" />
+      <ArchiveSectionHeader title="Metadata refresh" />
       <div style={{ display: 'grid', gap: 10 }}>
-        <CareRow label="Needs care" value={qualitySummary.needsCare} tone="care" />
-        <CareRow label="Missing cover" value={qualitySummary.missingCover} tone="care" />
-        <CareRow label="Manual" value={qualitySummary.manual} tone="manual" />
-        <CareRow label="Candidate" value={qualitySummary.candidate} tone="candidate" />
+        <CareRow label="Needs refresh" value={qualitySummary.needsCare} tone="care" />
+        <CareRow label="Missing covers" value={qualitySummary.missingCover} tone="care" />
+        <CareRow label="Manual entries" value={qualitySummary.manual} tone="manual" />
+        <CareRow label="Review candidates" value={qualitySummary.candidate} tone="candidate" />
       </div>
     </aside>
   );
