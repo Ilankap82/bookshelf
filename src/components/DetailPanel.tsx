@@ -11,8 +11,8 @@ type BookMetadata = Book & {
   language?: string;
 };
 
-export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
-  book: Book; onClose: () => void; onEdit: () => void; onDelete: () => void;
+export default function DetailPanel({ book, onClose, onEdit, onDelete, onRefreshMetadata }: {
+  book: Book; onClose: () => void; onEdit: () => void; onDelete: () => void; onRefreshMetadata: () => void;
 }) {
   const metadata = book as BookMetadata;
   const [fetchedCover, setFetchedCover] = useState<{ bookId: string; url: string } | null>(null);
@@ -219,6 +219,12 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
             style={{ flex: 1, padding: '11px 0', borderRadius: 999, fontSize: 13, fontFamily: "'Manrope', sans-serif", cursor: 'pointer', border: 'none', fontWeight: 650, background: '#171715', color: '#f7f4ec', boxShadow: '0 12px 24px rgba(23,23,21,0.12)' }}
           >
             Edit Book
+          </button>
+          <button
+            onClick={onRefreshMetadata}
+            style={{ padding: '10px 14px', borderRadius: 999, fontSize: 13, cursor: 'pointer', border: '1px solid #d8d3c8', background: 'transparent', color: '#4B4B4B' }}
+          >
+            Refresh metadata
           </button>
           {confirmDelete ? (
             <>

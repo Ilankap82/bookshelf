@@ -4,6 +4,7 @@ import { SEED_BOOKS } from './data/seedBooks';
 import { RECOMMENDATIONS } from './data/recommendations';
 import type { Recommendation } from './data/recommendations';
 import { loadBooksFromStorageResult, parseImportedData, saveBooksToStorage, serializeAppData } from './lib/storage';
+import { mergeBookWithMetadataResult, searchBookMetadata } from './lib/metadata';
 import DetailPanel from './components/DetailPanel';
 import BookForm from './components/BookForm';
 import BookIntakePanel from './components/BookIntakePanel';
@@ -146,6 +147,18 @@ export default function App() {
     setBooks(prev => [...prev, newBook]);
   }
 
+  async function refreshBookMetadata(book: Book) {
+    const response = await searchBookMetadata({
+      title: book.title,
+      author: book.author,
+      isbn: book.sourceIds?.isbn13?.[0] ?? book.sourceIds?.isbn10?.[0],
+    });
+    const bestResult = response.results[0];
+    if (!bestResult) return;
+
+    addOrUpdateBook(mergeBookWithMetadataResult(book, bestResult));
+  }
+
   const counts = {
     all: books.length,
     completed: books.filter(b => b.status === 'Completed').length,
@@ -204,7 +217,8 @@ export default function App() {
 
       {selectedBook && !editingBook && (
         <DetailPanel book={selectedBook} onClose={() => setSelectedBook(null)}
-          onEdit={() => setEditingBook(selectedBook)} onDelete={() => deleteBook(selectedBook.id)} />
+          onEdit={() => setEditingBook(selectedBook)} onDelete={() => deleteBook(selectedBook.id)}
+          onRefreshMetadata={() => refreshBookMetadata(selectedBook)} />
       )}
 
       {editingBook === 'new' && (
