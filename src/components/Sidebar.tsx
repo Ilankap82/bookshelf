@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Book } from '../types';
 import type { UserProfile } from '../App';
+import { resolveStoredCover } from '../utils/cover';
 
 type View = 'home' | 'library' | 'stats' | 'discover';
 type FilterStatus = 'All' | 'Completed' | 'Reading' | 'Want to Read' | 'DNF';
@@ -52,6 +53,8 @@ const Icons = {
 };
 
 export default function Sidebar({ view, onViewChange, counts, currentlyReading, filterStatus, onFilterStatus, onAddBook, user, onEditUser }: Props) {
+  const sidebarCover = currentlyReading ? resolveStoredCover(currentlyReading).url : null;
+
   return (
     <aside className="book-tracker-sidebar" style={{
       width: 240, minHeight: '100vh',
@@ -137,8 +140,8 @@ export default function Sidebar({ view, onViewChange, counts, currentlyReading, 
           <div style={{ fontSize: 9, letterSpacing: '1.8px', textTransform: 'uppercase' as const, color: '#6B6B6B', fontWeight: 700, marginBottom: 10 }}>Now Reading</div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <div style={{ width: 34, flexShrink: 0, aspectRatio: '2/3', borderRadius: 5, background: 'linear-gradient(160deg,#E8F5F0,#C8E8DC)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, overflow: 'hidden' }}>
-              {currentlyReading.coverUrl
-                ? <img src={currentlyReading.coverUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {sidebarCover
+                ? <img src={sidebarCover} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : '📖'
               }
             </div>

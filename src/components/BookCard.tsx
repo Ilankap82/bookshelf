@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { Book } from '../types';
 import { GenreTag, StarRating } from './sharedUi';
-import { fetchCoverUrl, getCoverCandidates } from '../utils/cover';
+import { fetchCoverUrl, getCoverCandidates, resolveStoredCover } from '../utils/cover';
 
 // Light-theme placeholder palette — tonal, editorial
 const GENRE_PALETTE: Record<string, { bg: string; accent: string; text: string }> = {
@@ -38,17 +38,17 @@ export default function BookCard({
   const [hover, setHover] = useState(false);
   const palette = GENRE_PALETTE[book.genres[0]] || DEFAULT_PALETTE;
   const failedUrls = failedCovers?.bookId === book.id ? failedCovers.urls : [];
+  const storedCover = resolveStoredCover(book, failedUrls);
   const coverCandidates = getCoverCandidates(book, failedUrls);
-  const candidateCover = coverCandidates[0] ?? null;
   const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
-  const cover = candidateCover || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
+  const cover = storedCover.url || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
   const isArchiveVariant = variant !== 'default';
   const isFeature = variant === 'archiveFeature';
   const cardRadius = isArchiveVariant ? 24 : 10;
   const coverRadius = isArchiveVariant ? '5px 13px 13px 5px' : 0;
 
   useEffect(() => {
-    if (candidateCover) return;
+    if (storedCover.url) return;
 
     let cancelled = false;
     fetchCoverUrl(book.title, book.author).then(url => {
@@ -56,7 +56,7 @@ export default function BookCard({
     });
 
     return () => { cancelled = true; };
-  }, [book.id, book.title, book.author, candidateCover]);
+  }, [book.id, book.title, book.author, storedCover.url]);
 
   function handleCoverError() {
     if (cover) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 import { GenreTag, StarRating } from './sharedUi';
-import { fetchCoverUrl, getCoverCandidates } from '../utils/cover';
+import { fetchCoverUrl, getCoverCandidates, resolveStoredCover } from '../utils/cover';
 
 type BookMetadata = Book & {
   subtitle?: string;
@@ -19,10 +19,10 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   const [failedCovers, setFailedCovers] = useState<{ bookId: string; urls: string[] } | null>(null);
   const [confirmDeleteFor, setConfirmDeleteFor] = useState<string | null>(null);
   const failedUrls = failedCovers?.bookId === book.id ? failedCovers.urls : [];
+  const storedCover = resolveStoredCover(book, failedUrls);
   const coverCandidates = getCoverCandidates(book, failedUrls);
-  const candidateCover = coverCandidates[0] ?? null;
   const fetchedFallback = fetchedCover?.bookId === book.id ? fetchedCover.url : null;
-  const cover = candidateCover || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
+  const cover = storedCover.url || (fetchedFallback && !failedUrls.includes(fetchedFallback) ? fetchedFallback : null);
   const confirmDelete = confirmDeleteFor === book.id;
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
   }, [onClose]);
 
   useEffect(() => {
-    if (candidateCover) return;
+    if (storedCover.url) return;
 
     let cancelled = false;
     fetchCoverUrl(book.title, book.author).then(url => {
@@ -40,7 +40,7 @@ export default function DetailPanel({ book, onClose, onEdit, onDelete }: {
     });
 
     return () => { cancelled = true; };
-  }, [book.id, book.title, book.author, candidateCover]);
+  }, [book.id, book.title, book.author, storedCover.url]);
 
   function handleCoverError() {
     if (cover) {
