@@ -10,7 +10,6 @@ interface IndexRoomProps {
   books: Book[];
   currentlyReading: Book[];
   recommendations: Recommendation[];
-  onNavigate: (view: 'home' | 'library' | 'stats' | 'discover') => void;
   onSelectBook: (book: Book) => void;
   onAddBook: () => void;
 }
@@ -20,7 +19,10 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
   const readingStats = getReadingStats(books);
   const earnedTitle = getEarnedReaderTitle(books);
   const primaryReading = currentlyReading[0] ?? null;
-  const nextRecommendations = recommendations.slice(0, 6);
+  const existingTitles = new Set(books.map(book => book.title.toLowerCase()));
+  const nextRecommendations = recommendations
+    .filter(rec => !existingTitles.has(rec.title.toLowerCase()))
+    .slice(0, 6);
 
   return (
     <div style={S.content}>
@@ -35,13 +37,11 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
         <button type="button" onClick={onAddBook} style={{ ...S.btnPrimary, whiteSpace: 'nowrap' }}>Add book</button>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.15fr) minmax(280px,0.85fr)', gap: 18, alignItems: 'start', marginBottom: 28 }}>
+      <div className="home-command-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.15fr) minmax(280px,0.85fr)', gap: 18, alignItems: 'start', marginBottom: 28 }}>
         <section>
           <SectionTitle title="Now reading" />
           {primaryReading ? (
-            <button type="button" onClick={() => onSelectBook(primaryReading)} style={{ width: '100%', padding: 0, border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', fontFamily: "'Manrope', sans-serif" }}>
-              <BookCard book={primaryReading} onClick={() => undefined} variant="archiveFeature" />
-            </button>
+            <BookCard book={primaryReading} onClick={() => onSelectBook(primaryReading)} variant="archiveFeature" />
           ) : (
             <button type="button" onClick={onAddBook} style={{ width: '100%', border: '1px dashed rgba(6,125,85,0.35)', background: '#FFFFFF', borderRadius: 12, padding: 24, color: '#006241', fontSize: 14, fontWeight: 800, boxShadow: '0px 8px 24px rgba(27,28,25,0.05)', cursor: 'pointer' }}>
               Add what you are reading
@@ -62,7 +62,7 @@ export default function IndexRoom({ books, currentlyReading, recommendations, on
       <section>
         <SectionTitle title="Recommended next" />
         {nextRecommendations.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 14 }}>
+          <div className="home-recommendation-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 14 }}>
             {nextRecommendations.map((rec) => (
               <RecommendationCard key={`${rec.title}-${rec.author}`} rec={rec} />
             ))}

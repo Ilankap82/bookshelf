@@ -84,7 +84,9 @@
   }
 
   .index-stat-grid,
-  .index-room-grid {
+  .index-room-grid,
+  .home-command-grid,
+  .home-recommendation-grid {
     grid-template-columns: 1fr !important;
   }
 

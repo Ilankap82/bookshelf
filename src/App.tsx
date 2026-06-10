@@ -174,7 +174,6 @@ export default function App() {
             books={books}
             currentlyReading={currentlyReading}
             recommendations={RECOMMENDATIONS}
-            onNavigate={setView}
             onSelectBook={setSelectedBook}
             onAddBook={() => setEditingBook('new')}
           />
