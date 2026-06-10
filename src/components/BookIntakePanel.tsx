@@ -83,7 +83,7 @@ export default function BookIntakePanel({ onSave, onClose }: BookIntakePanelProp
         <div style={headerStyle}>
           <div>
             <div style={titleStyle}>Add Book</div>
-            <div style={subtitleStyle}>Search first, then review before saving.</div>
+            <div style={subtitleStyle}>Search public book data first. Manual entry is still available if nothing matches.</div>
           </div>
           <button onClick={onClose} style={closeButtonStyle} aria-label="Close book intake">x</button>
         </div>
@@ -141,7 +141,7 @@ export default function BookIntakePanel({ onSave, onClose }: BookIntakePanelProp
                 <div style={resultTitleStyle}>{result.title || title}</div>
                 <div style={resultAuthorStyle}>{result.author || author || 'Unknown author'}</div>
                 <div style={metadataStyle}>
-                  {[result.publishedYear, result.publisher, result.pageCount ? `${result.pageCount} pages` : undefined]
+                  {[result.publishedYear, result.publisher, result.pageCount ? `${result.pageCount} pages` : undefined, result.language]
                     .filter(Boolean)
                     .join(' / ') || 'No extra details'}
                 </div>
