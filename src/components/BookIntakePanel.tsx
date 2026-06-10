@@ -118,7 +118,7 @@ export default function BookIntakePanel({ onSave, onClose }: BookIntakePanelProp
           </div>
         </form>
 
-        {errors.length > 0 && (
+        {errors.length > 0 && results.length === 0 && !isSearching && (
           <div style={errorBoxStyle}>
             {errors.map(error => <div key={error}>{error}</div>)}
           </div>

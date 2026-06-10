@@ -51,6 +51,7 @@ export default function ArchiveRoom({
   onImport,
 }: ArchiveRoomProps) {
   const reading = books.filter(book => book.status === 'Reading');
+  const completed = books.filter(book => book.status === 'Completed');
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'covers' | 'ledger'>('covers');
   const qualitySummary = getArchiveQualitySummary(allBooks);
@@ -76,7 +77,7 @@ export default function ArchiveRoom({
         <div className="archive-stat-strip" style={{ ...archiveStyles.surface, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(86px, 1fr))', gap: 1, overflow: 'hidden', minWidth: 340 }}>
           <ArchiveStat label="Books" value={books.length} />
           <ArchiveStat label="Reading" value={reading.length} />
-          <ArchiveStat label="Needs refresh" value={qualitySummary.needsCare} />
+          <ArchiveStat label="Completed" value={completed.length} />
         </div>
       </header>
 
