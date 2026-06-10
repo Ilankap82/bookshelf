@@ -15,6 +15,7 @@ interface Props {
   onFilterStatus: (s: FilterStatus) => void;
   onAddBook: () => void;
   user: UserProfile;
+  earnedTitle: string;
   onEditUser: () => void;
 }
 
@@ -52,7 +53,7 @@ const Icons = {
   ),
 };
 
-export default function Sidebar({ view, onViewChange, counts, currentlyReading, filterStatus, onFilterStatus, onAddBook, user, onEditUser }: Props) {
+export default function Sidebar({ view, onViewChange, counts, currentlyReading, filterStatus, onFilterStatus, onAddBook, user, earnedTitle, onEditUser }: Props) {
   const sidebarCover = currentlyReading ? resolveStoredCover(currentlyReading).url : null;
 
   return (
@@ -188,10 +189,10 @@ export default function Sidebar({ view, onViewChange, counts, currentlyReading, 
         }}>
           {user.initials}
         </div>
-        {/* Name + role */}
+        {/* Name + earned title */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#2D2D2D', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{user.name}</div>
-          <div style={{ fontSize: 10, color: '#6B6B6B', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{user.role}</div>
+          <div style={{ fontSize: 10, color: '#6B6B6B', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{earnedTitle}</div>
         </div>
         {/* Edit icon */}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>

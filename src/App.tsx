@@ -5,6 +5,7 @@ import { RECOMMENDATIONS } from './data/recommendations';
 import type { Recommendation } from './data/recommendations';
 import { loadBooksFromStorageResult, parseImportedData, saveBooksToStorage, serializeAppData } from './lib/storage';
 import { mergeBookWithMetadataResult, searchBookMetadata } from './lib/metadata';
+import { getEarnedReaderTitle } from './lib/bookStats';
 import DetailPanel from './components/DetailPanel';
 import BookForm from './components/BookForm';
 import BookIntakePanel from './components/BookIntakePanel';
@@ -166,6 +167,7 @@ export default function App() {
     wantToRead: books.filter(b => b.status === 'Want to Read').length,
     dnf: books.filter(b => b.status === 'DNF').length,
   };
+  const earnedTitle = getEarnedReaderTitle(books);
 
   return (
     <div className="book-tracker-shell" style={{ display: 'flex', minHeight: '100vh', background: '#FAF9F4', color: '#2D2D2D', fontFamily: "'Manrope', sans-serif" }}>
@@ -178,6 +180,7 @@ export default function App() {
         onFilterStatus={(s: FilterStatus) => { setFilterStatus(s); setView('library'); }}
         onAddBook={() => setEditingBook('new')}
         user={user}
+        earnedTitle={earnedTitle.title}
         onEditUser={() => setEditingUser(true)}
       />
 
@@ -243,14 +246,14 @@ export default function App() {
 // ─── User Edit Modal ──────────────────────────────────────────────────────────
 function UserEditModal({ user, onSave, onClose }: { user: UserProfile; onSave: (u: UserProfile) => void; onClose: () => void }) {
   const [name, setName] = useState(user.name);
-  const [role, setRole] = useState(user.role);
+  const [color, setColor] = useState(user.color);
   const AVATAR_COLORS = ['#006241','#7C3AED','#DB2777','#2563EB','#B45309','#0E7490'];
 
   const initials = name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) || 'R';
 
   function handleSave() {
     if (!name.trim()) return;
-    onSave({ name: name.trim(), role: role.trim() || 'Lead Curator', initials, color: user.color });
+    onSave({ name: name.trim(), role: user.role || 'Reader', initials, color });
   }
 
   return (
@@ -258,11 +261,11 @@ function UserEditModal({ user, onSave, onClose }: { user: UserProfile; onSave: (
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{ background:'#FAF9F4', borderRadius:16, padding:'32px 36px', width:400, boxShadow:'0 24px 60px rgba(27,28,25,0.18)' }}>
         <div style={{ fontFamily:"'Newsreader',serif", fontStyle:'italic', fontSize:22, fontWeight:600, color:'#2D2D2D', marginBottom:6 }}>Your Profile</div>
-        <div style={{ fontSize:13, color:'#6B6B6B', marginBottom:24 }}>Set your name to personalize your archive.</div>
+        <div style={{ fontSize:13, color:'#6B6B6B', marginBottom:24 }}>Set your name and avatar color for your library.</div>
 
         {/* Avatar preview */}
         <div style={{ display:'flex', justifyContent:'center', marginBottom:24 }}>
-          <div style={{ width:72, height:72, borderRadius:'50%', background:`linear-gradient(135deg,${user.color},${user.color}99)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:26, fontWeight:700, color:'#fff', fontFamily:"'Newsreader',serif", boxShadow:'0 8px 24px rgba(0,98,65,0.25)' }}>
+          <div style={{ width:72, height:72, borderRadius:'50%', background:`linear-gradient(135deg,${color},${color}99)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:26, fontWeight:700, color:'#fff', fontFamily:"'Newsreader',serif", boxShadow:'0 8px 24px rgba(0,98,65,0.25)' }}>
             {initials}
           </div>
         </div>
@@ -270,8 +273,8 @@ function UserEditModal({ user, onSave, onClose }: { user: UserProfile; onSave: (
         {/* Color picker */}
         <div style={{ display:'flex', gap:8, justifyContent:'center', marginBottom:24 }}>
           {AVATAR_COLORS.map(c => (
-            <div key={c} onClick={() => onSave({ ...user, name, role, initials, color: c })}
-              style={{ width:24, height:24, borderRadius:'50%', background:c, cursor:'pointer', border: user.color === c ? '3px solid #2D2D2D' : '3px solid transparent', transition:'border 0.15s' }} />
+            <div key={c} onClick={() => setColor(c)}
+              style={{ width:24, height:24, borderRadius:'50%', background:c, cursor:'pointer', border: color === c ? '3px solid #2D2D2D' : '3px solid transparent', transition:'border 0.15s' }} />
           ))}
         </div>
 
@@ -286,16 +289,6 @@ function UserEditModal({ user, onSave, onClose }: { user: UserProfile; onSave: (
             onKeyDown={e => e.key === 'Enter' && handleSave()}
           />
         </div>
-        <div style={{ marginBottom:24 }}>
-          <div style={{ fontSize:10, fontWeight:700, textTransform:'uppercase' as const, letterSpacing:1, color:'#6B6B6B', marginBottom:7 }}>Title / Role</div>
-          <input
-            style={{ width:'100%', background:'#FFFFFF', border:'1px solid rgba(45,45,45,0.18)', borderRadius:8, padding:'10px 14px', fontSize:14, fontFamily:"'Manrope',sans-serif", color:'#2D2D2D', outline:'none', boxSizing:'border-box' as const }}
-            value={role}
-            onChange={e => setRole(e.target.value)}
-            placeholder="e.g. Lead Curator"
-          />
-        </div>
-
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={handleSave} style={{ flex:1, padding:'11px 0', borderRadius:8, fontSize:14, fontFamily:"'Manrope',sans-serif", cursor:'pointer', border:'none', fontWeight:600, background:'linear-gradient(160deg,#067D55,#006241)', color:'#FFFFFF', boxShadow:'0 2px 8px rgba(0,98,65,0.25)' }}>
             Save Profile

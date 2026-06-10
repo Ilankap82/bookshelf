@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { Book } from '../types';
+import { getEarnedReaderTitle } from '../lib/bookStats';
 import { S } from './sharedStyles';
 
 // Milestone definitions
@@ -15,6 +16,7 @@ const MILESTONES = [
 ];
 
 export default function StatsDashboard({ books }: { books: Book[] }) {
+  const earnedTitle = getEarnedReaderTitle(books);
   const stats = useMemo(() => {
     const completed = books.filter(b => b.status === 'Completed');
     const totalPages = completed.reduce((s, b) => s + (b.pageCount || 0), 0);
@@ -76,6 +78,24 @@ export default function StatsDashboard({ books }: { books: Book[] }) {
       </div>
 
       <div style={S.content}>
+        <Panel title="Reader Title" style={{ marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap' as const }}>
+            <div>
+              <div style={{ fontFamily: "'Newsreader', serif", fontSize: 34, color: '#2D2D2D', lineHeight: 1 }}>{earnedTitle.title}</div>
+              {earnedTitle.nextTitle && (
+                <div style={{ marginTop: 8, fontSize: 13, color: '#6B6B6B' }}>
+                  {earnedTitle.progress}% toward {earnedTitle.nextTitle}
+                </div>
+              )}
+            </div>
+            <div style={{ minWidth: 180, flex: '0 1 260px' }}>
+              <div style={{ height: 7, background: '#F1F1ED', borderRadius: 4, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${earnedTitle.progress}%`, background: 'linear-gradient(90deg,#067D55,#006241)', borderRadius: 4 }} />
+              </div>
+            </div>
+          </div>
+        </Panel>
+
         {/* KPI Tiles */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 28 }}>
           <StatCard label="Books Completed"  value={stats.completed.length}               sub={`of ${books.length} tracked`} />
